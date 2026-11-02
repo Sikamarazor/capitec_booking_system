@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>BranchBooking.Api</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BranchBooking.Application\BranchBooking.Application.csproj" />
+    <ProjectReference Include="..\BranchBooking.Infrastructure\BranchBooking.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

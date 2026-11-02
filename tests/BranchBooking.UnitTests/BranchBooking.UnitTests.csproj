@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>BranchBooking.UnitTests</RootNamespace>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BranchBooking.Domain\BranchBooking.Domain.csproj" />
+    <ProjectReference Include="..\..\src\BranchBooking.Application\BranchBooking.Application.csproj" />
+    <ProjectReference Include="..\..\src\BranchBooking.Infrastructure\BranchBooking.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\BranchBooking.Api\BranchBooking.Api.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3.mtp-v2" Version="4.0.2" />
+  </ItemGroup>
+</Project>
+
