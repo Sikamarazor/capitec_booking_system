@@ -1,0 +1,45 @@
+# ---- .NET ----
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+publish/
+artifacts/
+TestResults/
+coverage/
+*.trx
+*.user
+*.suo
+.vs/
+*.log
+# user-secrets and local overrides
+secrets.json
+appsettings.*.local.json
+
+# ---- Node / Angular ----
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+yarn-error.log*
+*.tsbuildinfo
+
+# ---- Environment files (never commit real values) ----
+.env
+.env.*
+!.env.example
+
+# ---- Docker local data ----
+.docker-data/
+
+# ---- IDEs ----
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+docs/
