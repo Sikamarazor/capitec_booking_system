@@ -13,7 +13,23 @@ if [[ -z "${ConnectionStrings__BranchBooking:-}" ]] \
   exit 1
 fi
 
-cleanup() { kill 0 2>/dev/null || true; }
+API_PID=""
+WEB_PID=""
+
+cleanup() {
+  echo "Shutting down servers safely..."
+  # Clean up .NET API process cleanly
+  if [[ -not -z "$API_PID" ]]; then
+    kill "$API_PID" 2>/dev/null || true
+  fi
+  # Clean up Angular dev process cleanly
+  if [[ -not -z "$WEB_PID" ]]; then
+    kill "$WEB_PID" 2>/dev/null || true
+  fi
+  # Fallback blanket cleanup
+  kill 0 2>/dev/null || true
+}
+
 trap cleanup EXIT INT TERM
 
 echo "Starting API on http://localhost:5080 ..."
