@@ -26,6 +26,20 @@ public class HealthEndpointTests(ApiFactory factory) : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task Get_ready_returns_200_when_database_is_up()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        using var client = factory.CreateClient();
+
+        using var response = await client.GetAsync("/api/v1/health/ready", ct);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+        Assert.Equal("ready", body.GetProperty("status").GetString());
+        Assert.Equal("up", body.GetProperty("database").GetString());
+    }
+
+    [Fact]
     public async Task Unknown_route_returns_404()
     {
         var ct = TestContext.Current.CancellationToken;
@@ -34,5 +48,33 @@ public class HealthEndpointTests(ApiFactory factory) : IClassFixture<ApiFactory>
         using var response = await client.GetAsync("/api/v1/does-not-exist", ct);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+}
+
+public class HealthEndpointDatabaseDownTests(DatabaseDownApiFactory factory) : IClassFixture<DatabaseDownApiFactory>
+{
+    [Fact]
+    public async Task Get_ready_returns_503_when_database_is_down()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        using var client = factory.CreateClient();
+
+        using var response = await client.GetAsync("/api/v1/health/ready", ct);
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+        Assert.Equal("not_ready", body.GetProperty("status").GetString());
+        Assert.Equal("down", body.GetProperty("database").GetString());
+    }
+
+    [Fact]
+    public async Task Get_health_still_returns_200_when_database_is_down()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        using var client = factory.CreateClient();
+
+        using var response = await client.GetAsync("/api/v1/health", ct);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 }

@@ -1,6 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <RootNamespace>BranchBooking.Api</RootNamespace>
+    <UserSecretsId>f143cff1-5711-477d-a084-3e52eda4e4bb</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\BranchBooking.Application\BranchBooking.Application.csproj" />

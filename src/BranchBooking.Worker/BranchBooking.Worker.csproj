@@ -1,6 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
   <PropertyGroup>
     <RootNamespace>BranchBooking.Worker</RootNamespace>
+    <UserSecretsId>4665519b-5436-4992-b0c5-ed5e694c6994</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\BranchBooking.Application\BranchBooking.Application.csproj" />
