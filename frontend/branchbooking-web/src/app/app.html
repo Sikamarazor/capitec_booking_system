@@ -1,0 +1,32 @@
+<header class="bg-brand-600 text-white">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+    <span class="text-xl font-bold tracking-tight">
+      Capitec <span class="font-normal opacity-90">Branch Booking</span>
+    </span>
+  </div>
+</header>
+
+<main class="mx-auto max-w-6xl px-4 py-10">
+  <section class="card">
+    <h1 class="text-3xl font-bold text-brand-900">Book a branch appointment</h1>
+    <p class="mt-2 max-w-prose text-muted">
+      Choose a branch and a time that suits you. Booking is coming soon.
+    </p>
+
+    <p class="mt-6 text-sm" role="status" aria-live="polite">
+      @switch (apiState().kind) {
+        @case ('up') {
+          <span class="rounded-full bg-brand-50 px-3 py-1 font-medium text-success">API online</span>
+        }
+        @case ('down') {
+          <span class="rounded-full bg-brand-50 px-3 py-1 font-medium text-accent-600">API unavailable</span>
+        }
+        @default {
+          <span class="rounded-full bg-brand-50 px-3 py-1 font-medium text-muted">Checking API</span>
+        }
+      }
+    </p>
+  </section>
+
+  <router-outlet />
+</main>

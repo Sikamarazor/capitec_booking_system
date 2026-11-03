@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand blue */
+  --color-brand-50: #e8f3fb;
+  --color-brand-100: #cfe6f7;
+  --color-brand-500: #1a8fd9;
+  --color-brand-600: #0a73bf;
+  --color-brand-700: #0a5c99;
+  --color-brand-900: #06375c;
+
+  /* Accent red */
+  --color-accent-500: #e2342d;
+  --color-accent-600: #c42a24;
+
+  /* Neutrals */
+  --color-ink: #0f1f2e;
+  --color-muted: #5b6b7a;
+  --color-surface: #f4f7fa;
+  --color-card: #ffffff;
+  --color-line: #d9e2ea;
+
+  /* Status */
+  --color-success: #1e8e3e;
+  --color-warning: #b26a00;
+
+  /* Typography: system stack until the brand font is confirmed */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Shape and elevation */
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+  --shadow-card: 0 1px 2px rgb(15 31 46 / 0.06), 0 4px 16px rgb(15 31 46 / 0.06);
+}
+
+/* --- Base Styles --- */
+/* In Tailwind v4, use regular CSS selectors to apply styling to raw elements */
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  @apply bg-surface text-ink antialiased;
+}
+
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-brand-600;
+}
+
+/* --- Custom Components & Utilities --- */
+/* In Tailwind v4, define custom complex styles using the @utility directive */
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-control px-5 py-3 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply btn bg-brand-600 text-white;
+  
+  &:hover {
+    @apply bg-brand-700;
+  }
+}
+
+@utility btn-secondary {
+  @apply btn border border-brand-600 bg-card text-brand-700;
+  
+  &:hover {
+    @apply bg-brand-50;
+  }
+}
+
+@utility btn-danger {
+  @apply btn bg-accent-600 text-white;
+  
+  &:hover {
+    @apply bg-accent-500;
+  }
+}
+
+@utility card {
+  @apply rounded-card bg-card p-6 shadow-card;
+}
+
+@utility field {
+  @apply w-full rounded-control border border-line bg-card px-4 py-3 text-base text-ink placeholder:text-muted;
+  
+  &:focus {
+    @apply border-brand-600 outline-hidden; /* outline-hidden ensures default input rings don't conflict */
+  }
+}
