@@ -1,5 +1,6 @@
 using BranchBooking.Application;
 using BranchBooking.Infrastructure;
+using BranchBooking.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,14 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
+// Off by default. Development and the Docker demo stack turn it on; a real production
+// deployment applies migrations as a release step (docs/engineering/database-migrations.md).
+if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+{
+    await app.Services.MigrateDatabaseAsync();
+}
+
+// TLS is terminated by the reverse proxy (nginx in Docker, or the hosting platform), so no HTTPS redirect here.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler();
@@ -21,4 +30,5 @@ app.MapControllers();
 
 app.Run();
 
+// Required so the integration tests can reference the entry point with WebApplicationFactory<Program>.
 public partial class Program { }

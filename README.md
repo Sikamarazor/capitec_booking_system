@@ -47,11 +47,16 @@ Open http://localhost:8080. Stop with `docker compose down`; add `-v` to also de
 
 Backend (xUnit):
 
+Database-backed tests need a disposable database. Create it once, then point the tests at it
+(the name must end in `_test`: the tests delete all rows in it, and refuse to run otherwise):
+
 ```bash
-dotnet test BranchBooking.slnx -c Release
-# Optional real-database test:
-export BRANCHBOOKING_TEST_CONNECTION="Host=localhost;Port=5432;Database=branchbooking;Username=branchbooking;Password=<YOUR-PASSWORD>"
+# Manual path (local PostgreSQL):  psql -h localhost -U postgres -f scripts/db/create-test-db.sql
+# Docker path:                     docker compose exec -T db psql -U branchbooking -d branchbooking < scripts/db/create-test-db.sql
+export BRANCHBOOKING_TEST_CONNECTION="Host=localhost;Port=5432;Database=branchbooking_test;Username=branchbooking;Password=<YOUR-PASSWORD>"
 ```
+
+Without the variable, database tests are skipped, not failed.
 
 Frontend:
 
