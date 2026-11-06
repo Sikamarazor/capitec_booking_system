@@ -2,6 +2,7 @@ using BranchBooking.Api.Contracts;
 using BranchBooking.Api.Http;
 using BranchBooking.Application.Bookings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace BranchBooking.Api.Controllers;
 
@@ -12,7 +13,8 @@ namespace BranchBooking.Api.Controllers;
 public sealed class BookingsController(
     CreateBooking createBooking,
     GetBooking getBooking,
-    CancelBooking cancelBooking) : ControllerBase
+    CancelBooking cancelBooking,
+    RescheduleBooking rescheduleBooking) : ControllerBase
 {
     /// <summary>Books a branch appointment and returns the confirmation with its reference.</summary>
     [HttpPost]
@@ -64,10 +66,29 @@ public sealed class BookingsController(
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<BookingDto>> Cancel(
         string reference,
-        [FromBody(EmptyBodyBehavior = Microsoft.AspNetCore.Mvc.ModelBinding.EmptyBodyBehavior.Allow)] CancelBookingRequest? request,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] CancelBookingRequest? request,
         CancellationToken cancellationToken)
     {
         var result = await cancelBooking.ExecuteAsync(reference, request?.Reason, cancellationToken);
+        if (!result.IsSuccess)
+        {
+            return this.ProblemFor(result.Error);
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>Moves a booking to another time at the same branch, for the same appointment type.</summary>
+    [HttpPost("{reference}/reschedule")]
+    [ProducesResponseType<BookingDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<BookingDto>> Reschedule(
+        string reference, RescheduleBookingRequest request, CancellationToken cancellationToken)
+    {
+        var result = await rescheduleBooking.ExecuteAsync(reference, request.NewStartsAtUtc!.Value, cancellationToken);
         if (!result.IsSuccess)
         {
             return this.ProblemFor(result.Error);

@@ -101,4 +101,8 @@ internal sealed class TestWorld
         Store.Bookings.RemoveAll(b => b.Reference == reference);
         return AddConfirmedBooking(startsAtUtc, slotNumber, reference: reference);
     }
+
+    public RescheduleBooking RescheduleBooking() =>
+        new(Bookings, UnitOfWork, Policy, SlotResolver, Mapper, Clock, NullLogger<RescheduleBooking>.Instance);
+
 }

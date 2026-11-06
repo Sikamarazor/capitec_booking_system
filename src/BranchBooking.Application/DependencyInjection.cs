@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<CreateBooking>();
         services.AddScoped<GetBooking>();
         services.AddScoped<CancelBooking>();
+        services.AddScoped<RescheduleBooking>();
         
         return services;
     }

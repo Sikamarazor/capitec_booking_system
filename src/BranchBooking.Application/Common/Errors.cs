@@ -44,4 +44,16 @@ public static class Errors
     public static Error InvalidCancellationReason(int maxLength) =>
         new("invalid_cancellation_reason", $"The reason can be at most {maxLength} characters.", ErrorType.Validation);
 
+    public static readonly Error BookingNotActive =
+        new("booking_not_active", "Only a confirmed booking can be rescheduled.", ErrorType.Conflict);
+
+    public static Error RescheduleLimitReached(int maxReschedules) =>
+        new(
+            "reschedule_limit_reached",
+            $"A booking can be rescheduled at most {maxReschedules} times. Please cancel it and book again.",
+            ErrorType.Policy);
+
+    public static readonly Error SameSlot =
+        new("same_slot", "The booking is already at that time. Please choose a different time.", ErrorType.Validation);
+
 }
