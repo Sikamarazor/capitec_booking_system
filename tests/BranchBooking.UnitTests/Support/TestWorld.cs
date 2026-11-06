@@ -4,6 +4,7 @@ using BranchBooking.Application.Catalog;
 using BranchBooking.Domain.Entities;
 using BranchBooking.Domain.ValueObjects;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace BranchBooking.UnitTests.Support;
 
@@ -72,4 +73,15 @@ internal sealed class TestWorld
         Store.Bookings.Add(booking);
         return booking;
     }
+
+    public SlotResolver SlotResolver => new(Policy);
+
+    public BookingMapper Mapper => new(Policy);
+
+    public CreateBooking CreateBooking() =>
+        new(Branches, Types, Bookings, UnitOfWork, SlotResolver, Mapper, Clock, NullLogger<CreateBooking>.Instance);
+
+    public CreateBookingCommand ValidCommand(DateTimeOffset? startsAtUtc = null) =>
+        new(Branch.Id, Type.Id, startsAtUtc ?? TuesdayEightAmUtc, "Thandi Nkosi", "thandi@example.com", "082 123 4567");
+
 }

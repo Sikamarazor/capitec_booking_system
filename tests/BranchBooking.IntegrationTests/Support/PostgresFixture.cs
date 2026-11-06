@@ -63,12 +63,12 @@ public sealed class PostgresFixture : IAsyncLifetime
             "TRUNCATE TABLE bookings, branch_opening_hours, branches, appointment_types CASCADE");
     }
 
-    /// <summary>Skips when there is no database; otherwise empties it and inserts one branch and one appointment type.</summary>
-    public async Task<(Branch Branch, AppointmentType Type)> PrepareAsync()
+        /// <summary>Skips when there is no database; otherwise empties it and inserts one branch and one appointment type.</summary>
+    public async Task<(Branch Branch, AppointmentType Type)> PrepareAsync(int slotCapacity = 2)
     {
         await ResetAsync();
 
-        var branch = PersistenceTestData.NewBranch();
+        var branch = PersistenceTestData.NewBranch(slotCapacity: slotCapacity);
         var type = PersistenceTestData.NewType();
 
         await using var context = CreateContext();

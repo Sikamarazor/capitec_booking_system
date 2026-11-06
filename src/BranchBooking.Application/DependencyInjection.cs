@@ -18,6 +18,9 @@ public static class DependencyInjection
         services.AddScoped<ListAppointmentTypes>();
         services.AddScoped<ListBranches>();
         services.AddScoped<GetAvailability>();
+        services.AddSingleton<SlotResolver>();
+        services.AddSingleton<BookingMapper>();
+        services.AddScoped<CreateBooking>();
 
         return services;
     }
