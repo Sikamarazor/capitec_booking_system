@@ -2,10 +2,12 @@ using BranchBooking.Application;
 using BranchBooking.Infrastructure;
 using BranchBooking.Infrastructure.Persistence;
 using BranchBooking.Infrastructure.Persistence.Seeding;
+using BranchBooking.Api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplication();
+builder.Services.AddBookingPolicy(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddControllers();
