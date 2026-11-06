@@ -9,7 +9,7 @@ namespace BranchBooking.Api.Controllers;
 [ApiController]
 [Route("api/v1/bookings")]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-public sealed class BookingsController(CreateBooking createBooking) : ControllerBase
+public sealed class BookingsController(CreateBooking createBooking, GetBooking getBooking) : ControllerBase
 {
     /// <summary>Books a branch appointment and returns the confirmation with its reference.</summary>
     [HttpPost]
@@ -35,5 +35,20 @@ public sealed class BookingsController(CreateBooking createBooking) : Controller
         }
 
         return Created($"/api/v1/bookings/{result.Value.Reference}", result.Value);
+    }
+
+    /// <summary>Shows a booking. Any casing, and with or without hyphens, is accepted for the reference.</summary>
+    [HttpGet("{reference}")]
+    [ProducesResponseType<BookingDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<BookingDto>> Get(string reference, CancellationToken cancellationToken)
+    {
+        var result = await getBooking.ExecuteAsync(reference, cancellationToken);
+        if (!result.IsSuccess)
+        {
+            return this.ProblemFor(result.Error);
+        }
+
+        return Ok(result.Value);
     }
 }

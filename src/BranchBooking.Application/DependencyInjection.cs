@@ -21,6 +21,7 @@ public static class DependencyInjection
         services.AddSingleton<SlotResolver>();
         services.AddSingleton<BookingMapper>();
         services.AddScoped<CreateBooking>();
+        services.AddScoped<GetBooking>();
 
         return services;
     }

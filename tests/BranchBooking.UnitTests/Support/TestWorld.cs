@@ -84,4 +84,6 @@ internal sealed class TestWorld
     public CreateBookingCommand ValidCommand(DateTimeOffset? startsAtUtc = null) =>
         new(Branch.Id, Type.Id, startsAtUtc ?? TuesdayEightAmUtc, "Thandi Nkosi", "thandi@example.com", "082 123 4567");
 
+    public GetBooking GetBooking() => new(Bookings, Mapper);
+
 }

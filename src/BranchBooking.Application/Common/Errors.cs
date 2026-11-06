@@ -28,5 +28,8 @@ public static class Errors
 
     public static readonly Error SlotNotAvailable =
         new("slot_not_available", "That time has just been taken. Please choose another time.", ErrorType.Conflict);
+    
+    public static readonly Error BookingNotFound =
+        new("booking_not_found", "No booking was found for that reference.", ErrorType.NotFound);
 
 }
