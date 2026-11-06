@@ -1,5 +1,7 @@
 using BranchBooking.Application.Abstractions;
 using BranchBooking.Infrastructure.Persistence;
+using BranchBooking.Infrastructure.Persistence.Repositories;
+using BranchBooking.Infrastructure.Persistence.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +39,12 @@ public static class DependencyInjection
             options.UseNpgsql(sp.GetRequiredService<NpgsqlDataSource>()));
 
         services.AddSingleton<IDatabaseProbe, NpgsqlDatabaseProbe>();
+
+        services.AddScoped<IBranchRepository, BranchRepository>();
+        services.AddScoped<IAppointmentTypeRepository, AppointmentTypeRepository>();
+        services.AddScoped<IBookingRepository, BookingRepository>();
+        services.AddScoped<IUnitOfWork, EfUnitOfWork>();
+        services.AddScoped<ReferenceDataSeeder>();
 
         return services;
     }

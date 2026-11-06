@@ -1,6 +1,7 @@
 using BranchBooking.Application;
 using BranchBooking.Infrastructure;
 using BranchBooking.Infrastructure.Persistence;
+using BranchBooking.Infrastructure.Persistence.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,12 @@ if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
 {
     await app.Services.MigrateDatabaseAsync();
 }
+
+if (app.Configuration.GetValue<bool>("Database:SeedOnStartup"))
+{
+    await app.Services.SeedDatabaseAsync();
+}
+
 
 // TLS is terminated by the reverse proxy (nginx in Docker, or the hosting platform), so no HTTPS redirect here.
 if (!app.Environment.IsDevelopment())

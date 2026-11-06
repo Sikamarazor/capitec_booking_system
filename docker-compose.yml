@@ -30,6 +30,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__BranchBooking: *db-connection
       Database__MigrateOnStartup: "true"
+      Database__SeedOnStartup: "true"
     depends_on:
       db:
         condition: service_healthy
