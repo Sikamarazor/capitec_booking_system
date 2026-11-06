@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using BranchBooking.Api.Middleware;
 using BranchBooking.Application.Common;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +21,20 @@ public static class ProblemResults
         var problem = controller.ProblemDetailsFactory.CreateProblemDetails(
             controller.HttpContext, statusCode: status, title: title, detail: error.Message);
         problem.Extensions["code"] = error.Code;
+        problem.AddCorrelation(controller.HttpContext);
 
         return new ObjectResult(problem) { StatusCode = status };
+    }
+
+    /// <summary>Adds the trace id and, when present, the correlation id so a customer can quote them to support.</summary>
+    public static ProblemDetails AddCorrelation(this ProblemDetails problem, HttpContext context)
+    {
+        problem.Extensions["traceId"] = Activity.Current?.Id ?? context.TraceIdentifier;
+        if (CorrelationIdMiddleware.From(context) is { } correlationId)
+        {
+            problem.Extensions["correlationId"] = correlationId;
+        }
+
+        return problem;
     }
 }

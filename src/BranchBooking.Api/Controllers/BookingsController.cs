@@ -3,6 +3,9 @@ using BranchBooking.Api.Http;
 using BranchBooking.Application.Bookings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using BranchBooking.Api.Configuration;
+using Microsoft.AspNetCore.RateLimiting;
+
 
 namespace BranchBooking.Api.Controllers;
 
@@ -17,6 +20,7 @@ public sealed class BookingsController(
     RescheduleBooking rescheduleBooking) : ControllerBase
 {
     /// <summary>Books a branch appointment and returns the confirmation with its reference.</summary>
+    [EnableRateLimiting(RateLimitPolicies.Write)]
     [HttpPost]
     [ProducesResponseType<BookingDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
@@ -43,6 +47,7 @@ public sealed class BookingsController(
     }
 
     /// <summary>Shows a booking. Any casing, and with or without hyphens, is accepted for the reference.</summary>
+    [EnableRateLimiting(RateLimitPolicies.Lookup)]
     [HttpGet("{reference}")]
     [ProducesResponseType<BookingDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -79,6 +84,7 @@ public sealed class BookingsController(
     }
 
     /// <summary>Moves a booking to another time at the same branch, for the same appointment type.</summary>
+    [EnableRateLimiting(RateLimitPolicies.Write)]
     [HttpPost("{reference}/reschedule")]
     [ProducesResponseType<BookingDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]

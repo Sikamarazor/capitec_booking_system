@@ -31,6 +31,7 @@ services:
       ConnectionStrings__BranchBooking: *db-connection
       Database__MigrateOnStartup: "true"
       Database__SeedOnStartup: "true"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
     depends_on:
       db:
         condition: service_healthy
