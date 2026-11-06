@@ -58,10 +58,14 @@ internal sealed class TestWorld
     public GetAvailability GetAvailability() => new(Branches, Bookings, Policy);
 
     /// <summary>Adds an existing confirmed booking at this world's branch and type, as if saved earlier.</summary>
-    public Booking AddConfirmedBooking(DateTimeOffset startsAtUtc, int slotNumber = 1, string email = "thandi@example.com")
+    public Booking AddConfirmedBooking(
+        DateTimeOffset startsAtUtc,
+        int slotNumber = 1,
+        string email = "thandi@example.com",
+        BookingReference? reference = null)
     {
         var booking = Booking.Create(
-            BookingReference.Generate(),
+            reference ?? BookingReference.Generate(),
             Branch.Id,
             Type.Id,
             DomainTestData.NewSlot(startsAtUtc),
@@ -85,5 +89,16 @@ internal sealed class TestWorld
         new(Branch.Id, Type.Id, startsAtUtc ?? TuesdayEightAmUtc, "Thandi Nkosi", "thandi@example.com", "082 123 4567");
 
     public GetBooking GetBooking() => new(Bookings, Mapper);
-
+    
+    public CancelBooking CancelBooking() =>
+        new(Bookings, UnitOfWork, Policy, Mapper, Clock, NullLogger<CancelBooking>.Instance);
+    /// <summary>
+    /// Simulates what a failed save leaves behind in a real database: the in-memory changes are gone and the
+    /// stored row is back to a fresh confirmed booking with the same reference.
+    /// </summary>
+    public Booking ResetToFresh(BookingReference reference, DateTimeOffset startsAtUtc, int slotNumber = 1)
+    {
+        Store.Bookings.RemoveAll(b => b.Reference == reference);
+        return AddConfirmedBooking(startsAtUtc, slotNumber, reference: reference);
+    }
 }

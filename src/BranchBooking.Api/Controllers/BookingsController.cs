@@ -9,7 +9,10 @@ namespace BranchBooking.Api.Controllers;
 [ApiController]
 [Route("api/v1/bookings")]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-public sealed class BookingsController(CreateBooking createBooking, GetBooking getBooking) : ControllerBase
+public sealed class BookingsController(
+    CreateBooking createBooking,
+    GetBooking getBooking,
+    CancelBooking cancelBooking) : ControllerBase
 {
     /// <summary>Books a branch appointment and returns the confirmation with its reference.</summary>
     [HttpPost]
@@ -44,6 +47,27 @@ public sealed class BookingsController(CreateBooking createBooking, GetBooking g
     public async Task<ActionResult<BookingDto>> Get(string reference, CancellationToken cancellationToken)
     {
         var result = await getBooking.ExecuteAsync(reference, cancellationToken);
+        if (!result.IsSuccess)
+        {
+            return this.ProblemFor(result.Error);
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>Cancels a booking and frees its place. Cancelling twice is harmless. The body is optional.</summary>
+    [HttpPost("{reference}/cancel")]
+    [ProducesResponseType<BookingDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<BookingDto>> Cancel(
+        string reference,
+        [FromBody(EmptyBodyBehavior = Microsoft.AspNetCore.Mvc.ModelBinding.EmptyBodyBehavior.Allow)] CancelBookingRequest? request,
+        CancellationToken cancellationToken)
+    {
+        var result = await cancelBooking.ExecuteAsync(reference, request?.Reason, cancellationToken);
         if (!result.IsSuccess)
         {
             return this.ProblemFor(result.Error);

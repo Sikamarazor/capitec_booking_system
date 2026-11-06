@@ -22,7 +22,8 @@ public static class DependencyInjection
         services.AddSingleton<BookingMapper>();
         services.AddScoped<CreateBooking>();
         services.AddScoped<GetBooking>();
-
+        services.AddScoped<CancelBooking>();
+        
         return services;
     }
 }
