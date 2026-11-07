@@ -38,6 +38,7 @@ internal static class WorkerTestHost
         services.AddApplication();
         services.AddInfrastructure(configuration);
         services.AddNotificationDispatch();
+        services.AddReminderScheduling();
 
         configure?.Invoke(services);
 

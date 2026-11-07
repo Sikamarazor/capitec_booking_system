@@ -187,3 +187,26 @@ internal sealed class ScriptedSender : INotificationSender
     }
 }
 
+/// <summary>Applies the same rules as the real reader to the in-memory bookings and committed messages.</summary>
+internal sealed class InMemoryReminderCandidateReader(InMemoryStore store) : IReminderCandidateReader
+{
+    public Task<IReadOnlyList<ReminderCandidate>> FindDueAsync(ReminderQuery query, CancellationToken cancellationToken)
+    {
+        var found = store.Bookings
+            .Where(b => b.Status == BookingStatus.Confirmed
+                        && b.StartsAtUtc > query.StartsAfterUtc
+                        && b.StartsAtUtc <= query.StartsAtOrBeforeUtc
+                        && b.UpdatedAtUtc <= query.UpdatedAtOrBeforeUtc)
+            .Where(b => !store.Messages.Any(m =>
+                m.BookingId == b.Id && m.Kind == NotificationKind.Reminder && m.StartsAtUtc == b.StartsAtUtc))
+            .OrderBy(b => b.StartsAtUtc)
+            .ThenBy(b => b.Id)
+            .Take(query.Limit)
+            .Select(b => new ReminderCandidate(b.Id, b.StartsAtUtc))
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<ReminderCandidate>>(found);
+    }
+}
+
+

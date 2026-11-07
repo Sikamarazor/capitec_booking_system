@@ -18,4 +18,7 @@ public static class DatabaseConstraints
     public const string NotificationDedupeKeyUnique = "ux_notification_messages_dedupe_key";
 
     public const string NotificationBookingForeignKey = "fk_notification_messages_bookings_booking_id";
+
+    public const string ConfirmedStartIndex = "ix_bookings_confirmed_start";
+
 }

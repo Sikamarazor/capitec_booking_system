@@ -31,7 +31,8 @@ internal sealed class TestWorld
     public NotificationPolicy NotificationPolicy { get; }
 
     public TestWorld(int slotCapacity = 2, BookingPolicyOptions? policyOptions = null, DateTimeOffset? now = null,
-        NotificationOptions? notificationOptions = null)
+        NotificationOptions? notificationOptions = null,
+        ReminderOptions? reminderOptions = null)
     {
         Now = now ?? DomainTestData.Now;
         Branch = DomainTestData.NewBranch(slotCapacity: slotCapacity);
@@ -49,6 +50,9 @@ internal sealed class TestWorld
         Sender = new ScriptedSender();
         Content = new NotificationContentBuilder(Options.Create(NotificationSettings));
         NotificationPolicy = new NotificationPolicy(Options.Create(NotificationSettings));
+        ReminderSettings = reminderOptions ?? new ReminderOptions();
+        ReminderReader = new InMemoryReminderCandidateReader(Store);
+
     }
 
     public DateTimeOffset Now { get; }
@@ -78,6 +82,10 @@ internal sealed class TestWorld
     public GetAvailability GetAvailability() => new(Branches, Bookings, Policy);
 
     public InMemoryNotificationRepository Notifications { get; }
+
+    public ReminderOptions ReminderSettings { get; }
+
+    public InMemoryReminderCandidateReader ReminderReader { get; }
 
     /// <summary>Adds an existing confirmed booking at this world's branch and type, as if saved earlier.</summary>
     public Booking AddConfirmedBooking(
@@ -145,6 +153,27 @@ internal sealed class TestWorld
 
         Store.Messages.Add(message);
         return message;
+    }
+
+    public ScheduleReminders ScheduleReminders(ILogger<ScheduleReminders>? logger = null) =>
+        new(ReminderReader, Notifications, UnitOfWork, Options.Create(ReminderSettings), Clock, logger ?? NullLogger<ScheduleReminders>.Instance);
+
+    /// <summary>Adds a confirmed booking that was made (last changed) at <paramref name="createdAtUtc"/>, which may be well before <c>Now</c>.</summary>
+    public Booking AddConfirmedBookingCreatedAt(
+        DateTimeOffset startsAtUtc, DateTimeOffset createdAtUtc, int slotNumber = 1, string email = "thandi@example.com")
+    {
+        var booking = Booking.Create(
+            BookingReference.Generate(),
+            Branch.Id,
+            Type.Id,
+            DomainTestData.NewSlot(startsAtUtc),
+            slotNumber,
+            CustomerContact.Create("Thandi Nkosi", email, "0821234567"),
+            createdAtUtc);
+
+        booking.AttachNavigation(Branch, Type);
+        Store.Bookings.Add(booking);
+        return booking;
     }
 }
 

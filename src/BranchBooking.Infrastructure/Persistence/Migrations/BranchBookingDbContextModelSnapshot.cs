@@ -169,6 +169,10 @@ namespace BranchBooking.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ux_bookings_reference");
 
+                    b.HasIndex("StartsAtUtc")
+                        .HasDatabaseName("ix_bookings_confirmed_start")
+                        .HasFilter("status = 'Confirmed'");
+
                     b.HasIndex("BranchId", "StartsAtUtc", "SlotNumber")
                         .IsUnique()
                         .HasDatabaseName("ux_bookings_confirmed_slot")

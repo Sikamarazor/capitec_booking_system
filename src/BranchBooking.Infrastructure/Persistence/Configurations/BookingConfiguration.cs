@@ -83,5 +83,11 @@ public sealed class BookingConfiguration : IEntityTypeConfiguration<Booking>
             .HasDatabaseName(DatabaseConstraints.ConfirmedSlotUnique);
 
         builder.HasIndex(b => b.AppointmentTypeId).HasDatabaseName("ix_bookings_appointment_type_id");
+
+                // The reminder scan looks only at confirmed bookings by start time.
+        builder.HasIndex(b => b.StartsAtUtc)
+            .HasDatabaseName(DatabaseConstraints.ConfirmedStartIndex)
+            .HasFilter($"status = '{nameof(BookingStatus.Confirmed)}'");
+
     }
 }
