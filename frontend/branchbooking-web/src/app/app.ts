@@ -1,31 +1,22 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
-import { catchError, map, of, startWith } from 'rxjs';
-import { ApiHealthService } from './core/http/api-health.service';
-
-type ApiState =
-  | { kind: 'checking' }
-  | { kind: 'up'; version: string }
-  | { kind: 'down' };
-
-const checking: ApiState = { kind: 'checking' };
+import { RouteFocusService } from './core/routing/route-focus.service';
+import { SiteFooter } from './core/layout/site-footer';
+import { SiteHeader } from './core/layout/site-header';
 
 @Component({
-  imports: [RouterOutlet],
   selector: 'bb-root',
-  styleUrl: './app.css',
+  imports: [RouterOutlet, SiteHeader, SiteFooter],
   templateUrl: './app.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'flex min-h-dvh flex-col' },
 })
 export class App {
-  private readonly health = inject(ApiHealthService);
+  // Constructed here so it starts listening to navigation.
+  private readonly routeFocus = inject(RouteFocusService);
 
-  protected readonly apiState = toSignal(
-    this.health.getHealth().pipe(
-      map((h): ApiState => ({ kind: 'up', version: h.version })),
-      catchError(() => of<ApiState>({ kind: 'down' })),
-      startWith(checking),
-    ),
-    { requireSync: true },
-  );
+  protected skipToMain(event: Event): void {
+    event.preventDefault();
+    document.getElementById('main')?.focus();
+  }
 }
