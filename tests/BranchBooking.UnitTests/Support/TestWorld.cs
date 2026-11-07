@@ -6,6 +6,8 @@ using BranchBooking.Domain.ValueObjects;
 using BranchBooking.Application.Notifications;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.Abstractions;
+using BranchBooking.Domain.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace BranchBooking.UnitTests.Support;
 
@@ -18,7 +20,18 @@ internal sealed class TestWorld
     /// <summary>Tuesday 3 November 2026 08:00 South Africa time: a normal bookable slot.</summary>
     public static readonly DateTimeOffset TuesdayEightAmUtc = new(2026, 11, 3, 6, 0, 0, TimeSpan.Zero);
 
-    public TestWorld(int slotCapacity = 2, BookingPolicyOptions? policyOptions = null, DateTimeOffset? now = null)
+    public NotificationOptions NotificationSettings { get; }
+
+    public InMemoryNotificationQueue NotificationQueue { get; }
+
+    public ScriptedSender Sender { get; }
+
+    public NotificationContentBuilder Content { get; }
+
+    public NotificationPolicy NotificationPolicy { get; }
+
+    public TestWorld(int slotCapacity = 2, BookingPolicyOptions? policyOptions = null, DateTimeOffset? now = null,
+        NotificationOptions? notificationOptions = null)
     {
         Now = now ?? DomainTestData.Now;
         Branch = DomainTestData.NewBranch(slotCapacity: slotCapacity);
@@ -31,6 +44,11 @@ internal sealed class TestWorld
         Bookings = new InMemoryBookingRepository(Store);
         Notifications = new InMemoryNotificationRepository(Store);
         UnitOfWork = new FakeUnitOfWork(Store);
+        NotificationSettings = notificationOptions ?? new NotificationOptions();
+        NotificationQueue = new InMemoryNotificationQueue(Store);
+        Sender = new ScriptedSender();
+        Content = new NotificationContentBuilder(Options.Create(NotificationSettings));
+        NotificationPolicy = new NotificationPolicy(Options.Create(NotificationSettings));
     }
 
     public DateTimeOffset Now { get; }
@@ -110,4 +128,24 @@ internal sealed class TestWorld
         new(Bookings, Notifications, UnitOfWork, Policy, SlotResolver, Mapper, Clock, NullLogger<RescheduleBooking>.Instance);
     
     public ListBookingMessages ListBookingMessages() => new(Bookings, Notifications);
+
+    public DispatchNotifications DispatchNotifications(ILogger<DispatchNotifications>? logger = null) =>
+        new(NotificationQueue, UnitOfWork, Sender, Content, NotificationPolicy, Clock, logger ?? NullLogger<DispatchNotifications>.Instance);
+
+    /// <summary>Queues a pending message of the given kind for a booking, as the use cases would have, and returns it.</summary>
+    public NotificationMessage AddPendingMessage(Booking booking, NotificationKind kind = NotificationKind.Confirmation)
+    {
+        var message = kind switch
+        {
+            NotificationKind.Confirmation => NotificationMessage.ForConfirmation(booking, Now),
+            NotificationKind.Cancellation => NotificationMessage.ForCancellation(booking, Now),
+            NotificationKind.Reschedule => NotificationMessage.ForReschedule(booking, Now),
+            _ => NotificationMessage.ForReminder(booking.Id, booking.StartsAtUtc, Now),
+        };
+
+        Store.Messages.Add(message);
+        return message;
+    }
 }
+
+

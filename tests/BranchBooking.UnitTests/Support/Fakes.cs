@@ -2,6 +2,7 @@ using BranchBooking.Application.Abstractions;
 using BranchBooking.Domain.Entities;
 using BranchBooking.Domain.Enums;
 using BranchBooking.Domain.ValueObjects;
+using BranchBooking.Application.Notifications;
 
 namespace BranchBooking.UnitTests.Support;
 
@@ -105,6 +106,11 @@ internal static class BookingTestExtensions
         typeof(Booking).GetProperty(nameof(Booking.Branch))!.SetValue(booking, branch);
         typeof(Booking).GetProperty(nameof(Booking.AppointmentType))!.SetValue(booking, type);
     }
+
+    /// <summary>Attaches the booking the way the real queue's query does (the setter is private).</summary>
+    public static void AttachBooking(this NotificationMessage message, Booking booking) =>
+        typeof(NotificationMessage).GetProperty(nameof(NotificationMessage.Booking))!.SetValue(message, booking);
+
 }
 
 internal sealed class InMemoryNotificationRepository(InMemoryStore store) : INotificationRepository
@@ -122,3 +128,62 @@ internal sealed class InMemoryNotificationRepository(InMemoryStore store) : INot
         return Task.FromResult(messages);
     }
 }
+
+/// <summary>
+/// Mimics the real claim: due pending messages, oldest first, up to the batch size, with their booking attached.
+/// It does not model leases; the integration tests prove those against a real database.
+/// </summary>
+internal sealed class InMemoryNotificationQueue(InMemoryStore store) : INotificationQueue
+{
+    public Task<IReadOnlyList<NotificationMessage>> ClaimDueAsync(
+        DateTimeOffset nowUtc, int batchSize, TimeSpan lease, CancellationToken cancellationToken)
+    {
+        var due = store.Messages
+            .Where(m => m.Status == NotificationStatus.Pending && m.NextAttemptAtUtc <= nowUtc)
+            .OrderBy(m => m.NextAttemptAtUtc)
+            .ThenBy(m => m.Id)
+            .Take(batchSize)
+            .ToList();
+
+        foreach (var message in due)
+        {
+            message.AttachBooking(store.Bookings.Single(b => b.Id == message.BookingId));
+        }
+
+        return Task.FromResult<IReadOnlyList<NotificationMessage>>(due);
+    }
+}
+
+/// <summary>A sender that records what it was given and returns scripted results (success when the script is empty).</summary>
+internal sealed class ScriptedSender : INotificationSender
+{
+    private readonly Queue<object> _script = new();
+
+    public string Channel { get; set; } = "Simulated";
+
+    public bool RetainsContent { get; set; } = true;
+
+    public List<OutgoingEmail> Sent { get; } = [];
+
+    public void Enqueue(SendResult result) => _script.Enqueue(result);
+
+    public void EnqueueException(Exception exception) => _script.Enqueue(exception);
+
+    public Task<SendResult> SendAsync(OutgoingEmail email, CancellationToken cancellationToken)
+    {
+        Sent.Add(email);
+
+        if (_script.Count == 0)
+        {
+            return Task.FromResult(SendResult.Success($"provider-{Sent.Count}"));
+        }
+
+        return _script.Dequeue() switch
+        {
+            Exception exception => Task.FromException<SendResult>(exception),
+            SendResult result => Task.FromResult(result),
+            _ => throw new InvalidOperationException("The script holds only results and exceptions."),
+        };
+    }
+}
+

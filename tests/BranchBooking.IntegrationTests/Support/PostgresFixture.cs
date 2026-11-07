@@ -78,4 +78,9 @@ public sealed class PostgresFixture : IAsyncLifetime
 
         return (branch, type);
     }
+
+    /// <summary>The shared data source, for code under test that talks to PostgreSQL directly.</summary>
+    public NpgsqlDataSource DataSource =>
+        _dataSource ?? throw new InvalidOperationException($"No test database. Set {ConnectionVariable}.");
+
 }

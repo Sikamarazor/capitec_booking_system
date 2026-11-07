@@ -56,6 +56,9 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Production
       ConnectionStrings__BranchBooking: *db-connection
+      Notifications__Channel: ${NOTIFICATIONS_CHANNEL:-Simulated}
+      Notifications__PublicBaseUrl: ${PUBLIC_BASE_URL:-http://localhost:8080}
+
     depends_on:
       db:
         condition: service_healthy
