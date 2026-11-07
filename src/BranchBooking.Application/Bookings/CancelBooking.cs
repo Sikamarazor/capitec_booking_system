@@ -9,6 +9,7 @@ namespace BranchBooking.Application.Bookings;
 
 public sealed class CancelBooking(
     IBookingRepository bookings,
+    INotificationRepository notifications,
     IUnitOfWork unitOfWork,
     BookingPolicy policy,
     BookingMapper mapper,
@@ -48,7 +49,11 @@ public sealed class CancelBooking(
                 return Result<BookingDto>.Failure(Errors.ChangeWindowClosed(policy.ChangeCutoffHours));
             }
 
-            booking.Cancel(clock.GetUtcNow(), reason);
+            var now = clock.GetUtcNow();
+            
+            booking.Cancel(now, reason);
+            notifications.Add(NotificationMessage.ForCancellation(booking, now));
+
 
             try
             {

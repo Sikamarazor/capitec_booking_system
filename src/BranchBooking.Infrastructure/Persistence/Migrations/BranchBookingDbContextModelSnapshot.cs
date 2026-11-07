@@ -282,6 +282,111 @@ namespace BranchBooking.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BranchBooking.Domain.Entities.NotificationMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("booking_id");
+
+                    b.Property<string>("Channel")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("DedupeKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("dedupe_key");
+
+                    b.Property<string>("Detail")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("detail");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset?>("LockedUntilUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("locked_until_utc");
+
+                    b.Property<DateTimeOffset>("NextAttemptAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_attempt_at_utc");
+
+                    b.Property<string>("ProviderMessageId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("provider_message_id");
+
+                    b.Property<string>("RenderedBody")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("rendered_body");
+
+                    b.Property<string>("RenderedSubject")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("rendered_subject");
+
+                    b.Property<DateTimeOffset?>("SentAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at_utc");
+
+                    b.Property<DateTimeOffset>("StartsAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("starts_at_utc");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notification_messages");
+
+                    b.HasIndex("DedupeKey")
+                        .IsUnique()
+                        .HasDatabaseName("ux_notification_messages_dedupe_key");
+
+                    b.HasIndex("NextAttemptAtUtc")
+                        .HasDatabaseName("ix_notification_messages_due")
+                        .HasFilter("status = 'Pending'");
+
+                    b.HasIndex("BookingId", "Kind")
+                        .HasDatabaseName("ix_notification_messages_booking_id");
+
+                    b.ToTable("notification_messages", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_notification_messages_attempts_non_negative", "attempts >= 0");
+
+                            t.HasCheckConstraint("ck_notification_messages_sent_consistency", "(status = 'Sent') = (sent_at_utc IS NOT NULL)");
+                        });
+                });
+
             modelBuilder.Entity("BranchBooking.Domain.Entities.Booking", b =>
                 {
                     b.HasOne("BranchBooking.Domain.Entities.AppointmentType", "AppointmentType")
@@ -311,6 +416,18 @@ namespace BranchBooking.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_branch_opening_hours_branches_branch_id");
+                });
+
+            modelBuilder.Entity("BranchBooking.Domain.Entities.NotificationMessage", b =>
+                {
+                    b.HasOne("BranchBooking.Domain.Entities.Booking", "Booking")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notification_messages_bookings_booking_id");
+
+                    b.Navigation("Booking");
                 });
 
             modelBuilder.Entity("BranchBooking.Domain.Entities.Branch", b =>

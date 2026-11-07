@@ -11,6 +11,7 @@ public sealed class CreateBooking(
     IBranchRepository branches,
     IAppointmentTypeRepository appointmentTypes,
     IBookingRepository bookings,
+    INotificationRepository notifications,
     IUnitOfWork unitOfWork,
     SlotResolver slotResolver,
     BookingMapper mapper,
@@ -64,6 +65,7 @@ public sealed class CreateBooking(
             var booking = Booking.Create(
                 BookingReference.Generate(), branch.Id, type.Id, slot, position.Value, customer, clock.GetUtcNow());
             bookings.Add(booking);
+            notifications.Add(NotificationMessage.ForConfirmation(booking, clock.GetUtcNow()));
 
             try
             {

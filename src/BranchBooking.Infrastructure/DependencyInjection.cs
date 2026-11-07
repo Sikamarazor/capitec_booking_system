@@ -45,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
         services.AddScoped<ReferenceDataSeeder>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
 
         return services;
     }

@@ -1,6 +1,7 @@
 using BranchBooking.Application.Availability;
 using BranchBooking.Application.Bookings;
 using BranchBooking.Application.Catalog;
+using BranchBooking.Application.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BranchBooking.Application;
@@ -24,7 +25,8 @@ public static class DependencyInjection
         services.AddScoped<GetBooking>();
         services.AddScoped<CancelBooking>();
         services.AddScoped<RescheduleBooking>();
-        
+        services.AddScoped<ListBookingMessages>();
+
         return services;
     }
 }

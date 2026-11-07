@@ -20,6 +20,12 @@ internal sealed class InMemoryStore
     public Action? OnSaveFailure { get; set; }
 
     public int SaveCalls { get; set; }
+
+    public List<NotificationMessage> Messages { get; } = [];
+
+    /// <summary>Added through the repository, not yet "saved".</summary>
+    public List<NotificationMessage> StagedMessages { get; } = [];
+
 }
 
 internal sealed class InMemoryBranchRepository(params Branch[] branches) : IBranchRepository
@@ -75,12 +81,15 @@ internal sealed class FakeUnitOfWork(InMemoryStore store) : IUnitOfWork
         {
             var failure = store.SaveFailures.Dequeue();
             store.Staged.Clear();
+            store.StagedMessages.Clear();
             store.OnSaveFailure?.Invoke();
             throw failure;
         }
 
         store.Bookings.AddRange(store.Staged);
         store.Staged.Clear();
+        store.Messages.AddRange(store.StagedMessages);
+        store.StagedMessages.Clear();
         return Task.CompletedTask;
     }
 }
@@ -95,5 +104,21 @@ internal static class BookingTestExtensions
     {
         typeof(Booking).GetProperty(nameof(Booking.Branch))!.SetValue(booking, branch);
         typeof(Booking).GetProperty(nameof(Booking.AppointmentType))!.SetValue(booking, type);
+    }
+}
+
+internal sealed class InMemoryNotificationRepository(InMemoryStore store) : INotificationRepository
+{
+    public void Add(NotificationMessage message) => store.StagedMessages.Add(message);
+
+    public Task<IReadOnlyList<NotificationMessage>> ListForBookingAsync(Guid bookingId, CancellationToken cancellationToken)
+    {
+        IReadOnlyList<NotificationMessage> messages = store.Messages
+            .Where(m => m.BookingId == bookingId)
+            .OrderBy(m => m.CreatedAtUtc)
+            .ThenBy(m => m.Id)
+            .ToList();
+
+        return Task.FromResult(messages);
     }
 }

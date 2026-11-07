@@ -3,6 +3,7 @@ using BranchBooking.Application.Bookings;
 using BranchBooking.Application.Catalog;
 using BranchBooking.Domain.Entities;
 using BranchBooking.Domain.ValueObjects;
+using BranchBooking.Application.Notifications;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -28,6 +29,7 @@ internal sealed class TestWorld
         Branches = new InMemoryBranchRepository(Branch);
         Types = new InMemoryAppointmentTypeRepository(Type);
         Bookings = new InMemoryBookingRepository(Store);
+        Notifications = new InMemoryNotificationRepository(Store);
         UnitOfWork = new FakeUnitOfWork(Store);
     }
 
@@ -57,6 +59,8 @@ internal sealed class TestWorld
 
     public GetAvailability GetAvailability() => new(Branches, Bookings, Policy);
 
+    public InMemoryNotificationRepository Notifications { get; }
+
     /// <summary>Adds an existing confirmed booking at this world's branch and type, as if saved earlier.</summary>
     public Booking AddConfirmedBooking(
         DateTimeOffset startsAtUtc,
@@ -83,7 +87,7 @@ internal sealed class TestWorld
     public BookingMapper Mapper => new(Policy);
 
     public CreateBooking CreateBooking() =>
-        new(Branches, Types, Bookings, UnitOfWork, SlotResolver, Mapper, Clock, NullLogger<CreateBooking>.Instance);
+        new(Branches, Types, Bookings, Notifications, UnitOfWork, SlotResolver, Mapper, Clock, NullLogger<CreateBooking>.Instance);
 
     public CreateBookingCommand ValidCommand(DateTimeOffset? startsAtUtc = null) =>
         new(Branch.Id, Type.Id, startsAtUtc ?? TuesdayEightAmUtc, "Thandi Nkosi", "thandi@example.com", "082 123 4567");
@@ -91,7 +95,7 @@ internal sealed class TestWorld
     public GetBooking GetBooking() => new(Bookings, Mapper);
     
     public CancelBooking CancelBooking() =>
-        new(Bookings, UnitOfWork, Policy, Mapper, Clock, NullLogger<CancelBooking>.Instance);
+        new(Bookings, Notifications, UnitOfWork, Policy, Mapper, Clock, NullLogger<CancelBooking>.Instance);
     /// <summary>
     /// Simulates what a failed save leaves behind in a real database: the in-memory changes are gone and the
     /// stored row is back to a fresh confirmed booking with the same reference.
@@ -103,6 +107,7 @@ internal sealed class TestWorld
     }
 
     public RescheduleBooking RescheduleBooking() =>
-        new(Bookings, UnitOfWork, Policy, SlotResolver, Mapper, Clock, NullLogger<RescheduleBooking>.Instance);
-
+        new(Bookings, Notifications, UnitOfWork, Policy, SlotResolver, Mapper, Clock, NullLogger<RescheduleBooking>.Instance);
+    
+    public ListBookingMessages ListBookingMessages() => new(Bookings, Notifications);
 }

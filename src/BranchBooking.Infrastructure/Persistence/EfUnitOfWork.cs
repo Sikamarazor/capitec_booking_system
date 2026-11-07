@@ -17,19 +17,24 @@ public sealed class EfUnitOfWork(BranchBookingDbContext context) : IUnitOfWork
             context.ChangeTracker.Clear();
             throw new ConcurrencyConflictException(ex);
         }
-        catch (DbUpdateException ex) when (
-            ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } postgres
-            && postgres.ConstraintName == DatabaseConstraints.ConfirmedSlotUnique)
+        catch (DbUpdateException ex) when (IsUniqueViolation(ex, DatabaseConstraints.ConfirmedSlotUnique))
         {
             context.ChangeTracker.Clear();
             throw new SlotAlreadyBookedException(ex);
         }
-        catch (DbUpdateException ex) when (
-            ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } postgres
-            && postgres.ConstraintName == DatabaseConstraints.BookingReferenceUnique)
+        catch (DbUpdateException ex) when (IsUniqueViolation(ex, DatabaseConstraints.BookingReferenceUnique))
         {
             context.ChangeTracker.Clear();
             throw new DuplicateBookingReferenceException(ex);
         }
+        catch (DbUpdateException ex) when (IsUniqueViolation(ex, DatabaseConstraints.NotificationDedupeKeyUnique))
+        {
+            context.ChangeTracker.Clear();
+            throw new NotificationAlreadyQueuedException(ex);
+        }
     }
+
+    private static bool IsUniqueViolation(DbUpdateException exception, string constraintName) =>
+        exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } postgres
+        && postgres.ConstraintName == constraintName;
 }

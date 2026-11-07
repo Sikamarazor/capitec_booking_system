@@ -11,3 +11,7 @@ public sealed class DuplicateBookingReferenceException(Exception? innerException
 /// <summary>The booking was changed by someone else after it was loaded.</summary>
 public sealed class ConcurrencyConflictException(Exception? innerException = null)
     : Exception("The booking was changed by someone else. Reload it and try again.", innerException);
+
+/// <summary>A notification with the same dedupe key is already queued (for example by another Worker).</summary>
+public sealed class NotificationAlreadyQueuedException(Exception? innerException = null)
+    : Exception("The notification is already queued.", innerException);

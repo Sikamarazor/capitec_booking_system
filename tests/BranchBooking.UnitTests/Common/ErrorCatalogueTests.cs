@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 using BranchBooking.Application.Common;
+using Xunit;
 
 namespace BranchBooking.UnitTests.Common;
 

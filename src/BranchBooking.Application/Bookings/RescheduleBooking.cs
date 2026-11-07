@@ -2,12 +2,14 @@ using BranchBooking.Application.Abstractions;
 using BranchBooking.Application.Common;
 using BranchBooking.Domain.Enums;
 using BranchBooking.Domain.ValueObjects;
+using BranchBooking.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace BranchBooking.Application.Bookings;
 
 public sealed class RescheduleBooking(
     IBookingRepository bookings,
+    INotificationRepository notifications,
     IUnitOfWork unitOfWork,
     BookingPolicy policy,
     SlotResolver slotResolver,
@@ -70,7 +72,11 @@ public sealed class RescheduleBooking(
                 return Result<BookingDto>.Failure(Errors.SlotNotAvailable);
             }
 
-            booking.Reschedule(slot, position.Value, clock.GetUtcNow());
+            var now = clock.GetUtcNow();
+
+            booking.Reschedule(slot, position.Value, now);
+            notifications.Add(NotificationMessage.ForReschedule(booking, now));
+
 
             try
             {

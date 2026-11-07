@@ -11,6 +11,8 @@ public sealed class BranchBookingDbContext(DbContextOptions<BranchBookingDbConte
 
     public DbSet<Booking> Bookings => Set<Booking>();
 
+    public DbSet<NotificationMessage> NotificationMessages => Set<NotificationMessage>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BranchBookingDbContext).Assembly);

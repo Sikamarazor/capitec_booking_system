@@ -13,4 +13,9 @@ public static class DatabaseConstraints
     public const string AppointmentTypeCodeUnique = "ux_appointment_types_code";
 
     public const string BookingBranchForeignKey = "fk_bookings_branches_branch_id";
+
+    /// <summary>Unique: a notification can be queued only once.</summary>
+    public const string NotificationDedupeKeyUnique = "ux_notification_messages_dedupe_key";
+
+    public const string NotificationBookingForeignKey = "fk_notification_messages_bookings_booking_id";
 }
