@@ -11,12 +11,12 @@ public class NotificationOptionsTests
         var options = new NotificationOptions();
 
         Assert.True(options.IsValid());
-        Assert.False(options.UsesBrevo);
+        Assert.False(options.UsesSmtp);
     }
 
     [Theory]
-    [InlineData("Brevo")]
-    [InlineData("brevo")]
+    [InlineData("Smtp")]
+    [InlineData("smtp")]
     [InlineData("simulated")]
     public void Channel_names_are_case_insensitive(string channel)
     {
@@ -24,13 +24,13 @@ public class NotificationOptionsTests
     }
 
     [Fact]
-    public void Brevo_is_recognised()
+    public void Smtp_is_recognised()
     {
-        Assert.True(new NotificationOptions { Channel = "BREVO" }.UsesBrevo);
+        Assert.True(new NotificationOptions { Channel = "SMTP" }.UsesSmtp);
     }
 
     [Theory]
-    [InlineData("Smtp", "BranchBooking", "http://localhost:8080", "/manage", 20, 5, 30, 3600, 300)]
+    [InlineData("Pigeon", "BranchBooking", "http://localhost:8080", "/manage", 20, 5, 30, 3600, 300)]
     [InlineData("Simulated", "", "http://localhost:8080", "/manage", 20, 5, 30, 3600, 300)]
     [InlineData("Simulated", "BranchBooking", "ftp://example.com", "/manage", 20, 5, 30, 3600, 300)]
     [InlineData("Simulated", "BranchBooking", "not a url", "/manage", 20, 5, 30, 3600, 300)]

@@ -5,9 +5,9 @@ public sealed class NotificationOptions
 {
     public const string SectionName = "Notifications";
     public const string SimulatedChannel = "Simulated";
-    public const string BrevoChannel = "Brevo";
+    public const string SmtpChannel = "Smtp";
 
-    /// <summary><c>Simulated</c> (default, sends nothing) or <c>Brevo</c>.</summary>
+    /// <summary><c>Simulated</c> (default, sends nothing) or <c>Smtp</c> (email through an SMTP server).</summary>
     public string Channel { get; set; } = SimulatedChannel;
 
     /// <summary>Named in the message footer. Deliberately not a real institution's name by default.</summary>
@@ -36,10 +36,10 @@ public sealed class NotificationOptions
     /// <summary>How long a claimed message is reserved. Must outlast a whole batch of sends.</summary>
     public int LeaseSeconds { get; set; } = 300;
 
-    public bool UsesBrevo => string.Equals(Channel, BrevoChannel, StringComparison.OrdinalIgnoreCase);
+    public bool UsesSmtp => string.Equals(Channel, SmtpChannel, StringComparison.OrdinalIgnoreCase);
 
     public bool IsValid() =>
-        (string.Equals(Channel, SimulatedChannel, StringComparison.OrdinalIgnoreCase) || UsesBrevo)
+        (string.Equals(Channel, SimulatedChannel, StringComparison.OrdinalIgnoreCase) || UsesSmtp)
         && !string.IsNullOrWhiteSpace(BrandName)
         && BrandName.Length <= 70
         && Uri.TryCreate(PublicBaseUrl, UriKind.Absolute, out var baseUri)

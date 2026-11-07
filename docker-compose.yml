@@ -58,6 +58,14 @@ services:
       ConnectionStrings__BranchBooking: *db-connection
       Notifications__Channel: ${NOTIFICATIONS_CHANNEL:-Simulated}
       Notifications__PublicBaseUrl: ${PUBLIC_BASE_URL:-http://localhost:8080}
+      Notifications__Smtp__Host: ${SMTP_HOST:-mailpit}
+      Notifications__Smtp__Port: ${SMTP_PORT:-1025}
+      Notifications__Smtp__Security: ${SMTP_SECURITY:-None}
+      Notifications__Smtp__Username: ${SMTP_USERNAME:-}
+      Notifications__Smtp__Password: ${SMTP_PASSWORD:-}
+      Notifications__Smtp__SenderEmail: ${SMTP_SENDER_EMAIL:-noreply@branchbooking.example}
+      Notifications__Smtp__SenderName: ${SMTP_SENDER_NAME:-BranchBooking}
+
 
     depends_on:
       db:
@@ -73,6 +81,17 @@ services:
         condition: service_healthy
     ports:
       - "${WEB_PORT:-8080}:8080"
+  
+    # Development mail catcher: accepts every message, delivers none, shows them at http://localhost:8025.
+  # Started only with: docker compose --profile mail up -d
+  mailpit:
+    image: axllent/mailpit:latest   # record the version you ran in the verification record; pin it if you keep it
+    profiles: ["mail"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:1025:1025"   # SMTP, so a Worker started outside Docker can reach it too
+      - "127.0.0.1:8025:8025"   # web page and API
+
 
 volumes:
   db-data:
