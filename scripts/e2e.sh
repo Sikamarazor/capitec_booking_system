@@ -5,6 +5,7 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
+root="$PWD"
 
 export WEB_PORT="${E2E_WEB_PORT:-18080}"
 export API_PORT="${E2E_API_PORT:-15080}"
@@ -19,6 +20,8 @@ fi
 
 cleanup() {
   local status=$1
+  # Playwright runs from e2e/, but Compose files, logs and .env are relative to the repository root.
+  cd "$root" || return
   if [[ "$status" -ne 0 ]]; then
     "${compose[@]}" logs --no-color > e2e/compose.log 2>&1 || true
     echo "Compose logs saved to e2e/compose.log"

@@ -14,8 +14,3 @@ COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist/branchbooking-web/browser /usr/share/nginx/html
 EXPOSE 8080
 
-COPY src/ src/
-ARG VERSION=0.0.0-dev
-RUN dotnet publish src/BranchBooking.Worker/BranchBooking.Worker.csproj \
-    -c Release -o /app/publish --no-restore /p:UseAppHost=false /p:Version=${VERSION}
-
