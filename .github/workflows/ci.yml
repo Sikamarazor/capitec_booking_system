@@ -60,13 +60,13 @@ jobs:
 
       - name: Unit tests
         run: >
-          dotnet test tests/BranchBooking.UnitTests -c Release --no-build
-          --logger "trx;LogFileName=unit.trx" --results-directory TestResults
+             dotnet test tests/BranchBooking.UnitTests -c Release --no-build
+             --report-trx --report-trx-filename unit.trx --results-directory TestResults
 
       - name: Integration tests (real PostgreSQL)
         run: >
-          dotnet test tests/BranchBooking.IntegrationTests -c Release --no-build
-          --logger "trx;LogFileName=integration.trx" --results-directory TestResults
+             dotnet test tests/BranchBooking.IntegrationTests -c Release --no-build
+             --report-trx --report-trx-filename integration.trx --results-directory TestResults
 
       - name: Fail on skipped or missing tests
         run: scripts/ci/assert-tests.sh TestResults/unit.trx TestResults/integration.trx
