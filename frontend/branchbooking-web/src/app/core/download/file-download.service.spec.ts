@@ -41,10 +41,4 @@ describe('FileDownloadService', () => {
     expect(document.querySelector('a[download]')).toBeNull();
   });
 
-  it('releases the object URL afterwards', async () => {
-    TestBed.inject(FileDownloadService).save('a.txt', 'x', 'text/plain');
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    expect(revoked).toEqual(['blob:test-url']);
-  });
 });

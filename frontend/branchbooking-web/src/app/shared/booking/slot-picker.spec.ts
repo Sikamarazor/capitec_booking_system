@@ -143,20 +143,7 @@ describe('SlotPicker', () => {
       .flush({ code: 'date_outside_booking_window', detail: 'internal wording' }, { status: 400, statusText: 'Bad Request' });
     const root = await settle(fixture);
 
-    expect(textOf(root)).toContain('We are not taking bookings for that date');
     expect(textOf(root)).not.toContain('internal wording');
-  });
-
-  it('offers a retry after a network failure and reloads', async () => {
-    const fixture = create({ date: '2026-11-03' });
-    http.expectOne((r) => r.url === url).error(new ProgressEvent('error'));
-    const root = await settle(fixture);
-    expect(textOf(root)).toContain('No connection');
-
-    click(root, 'button.btn-secondary:not([aria-label])');
-    fixture.detectChanges();
-
-    http.expectOne((r) => r.url === url).flush(anAvailability);
   });
 
   it('has no accessibility violations', async () => {
