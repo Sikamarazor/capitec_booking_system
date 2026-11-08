@@ -1,0 +1,47 @@
+<h2 #heading tabindex="-1" class="text-xl font-semibold text-brand-900 outline-none">Cancel this appointment?</h2>
+<p class="mt-2">
+  {{ booking().appointmentType.name }} at {{ booking().branch.name }}, {{ when() }}.
+</p>
+
+<div class="mt-4">
+  <bb-alert variant="warning" heading="This frees your time for someone else">
+    You can make a new booking afterwards, but the time may no longer be available.
+  </bb-alert>
+</div>
+
+@if (error(); as problem) {
+  <div class="mt-4">
+    <bb-alert variant="error" [heading]="problem.title">
+      {{ problem.message }}
+      @if (problem.supportCode) {
+        <span class="mt-1 block text-sm">Support code: {{ problem.supportCode }}</span>
+      }
+    </bb-alert>
+  </div>
+}
+
+<form class="mt-4 space-y-4" novalidate (submit)="$event.preventDefault(); confirm()">
+  <bb-form-field
+    label="Reason (optional)"
+    controlId="cancel-reason"
+    hint="Up to 500 characters. Please do not include personal or financial details."
+  >
+    <textarea
+      id="cancel-reason"
+      class="field"
+      rows="3"
+      [attr.maxlength]="maxLength"
+      [formControl]="reason"
+      aria-describedby="cancel-reason-hint"
+    ></textarea>
+  </bb-form-field>
+
+  <div class="flex flex-wrap justify-between gap-3">
+    <button type="button" class="btn-secondary" [disabled]="submitting()" (click)="dismissed.emit()">
+      Keep my appointment
+    </button>
+    <button type="submit" class="btn-primary" [disabled]="submitting()">
+      {{ submitting() ? 'Cancelling...' : 'Yes, cancel appointment' }}
+    </button>
+  </div>
+</form>

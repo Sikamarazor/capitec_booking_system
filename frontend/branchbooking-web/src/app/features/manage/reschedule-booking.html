@@ -1,0 +1,45 @@
+<h2 #heading tabindex="-1" class="text-xl font-semibold text-brand-900 outline-none">Move your appointment</h2>
+<p class="mt-2">
+  Your appointment is now <strong>{{ currentText() }}</strong> at {{ booking().branch.name }}. Times are on the
+  branch's clock.
+</p>
+
+@if (error(); as problem) {
+  <div class="mt-4">
+    <bb-alert variant="error" [heading]="problem.title">
+      {{ problem.message }}
+      @if (problem.supportCode) {
+        <span class="mt-1 block text-sm">Support code: {{ problem.supportCode }}</span>
+      }
+    </bb-alert>
+  </div>
+}
+
+<div class="mt-4">
+  <bb-slot-picker
+    [branchId]="booking().branch.id"
+    [timeZoneId]="booking().branch.timeZoneId"
+    [(date)]="date"
+    [selectedStartsAtUtc]="slot()?.startsAtUtc ?? null"
+    [currentStartsAtUtc]="booking().startsAtUtc"
+    [refresh]="pickerRefresh()"
+    (chosen)="choose($event)"
+  />
+</div>
+
+@if (newText(); as text) {
+  <div class="mt-4 rounded-control bg-brand-50 p-4" role="status">
+    <p>
+      Move your appointment to <strong>{{ text }}</strong>?
+    </p>
+  </div>
+}
+
+<div class="mt-6 flex flex-wrap justify-between gap-3">
+  <button type="button" class="btn-secondary" [disabled]="submitting()" (click)="dismissed.emit()">
+    Keep my current time
+  </button>
+  <button type="button" class="btn-primary" [disabled]="!slot() || submitting()" (click)="confirm()">
+    {{ submitting() ? 'Moving...' : 'Confirm new time' }}
+  </button>
+</div>

@@ -1,6 +1,6 @@
 <section class="card">
   <h1 class="text-3xl font-bold text-brand-900">Manage your booking</h1>
-  <p class="mt-2 text-muted">See your appointment and the messages we have sent about it.</p>
+  <p class="mt-2 text-muted">See your appointment, move or cancel it, and read the messages we have sent about it.</p>
 </section>
 
 @if (booking(); as b) {
@@ -8,6 +8,13 @@
     <h2 #detailsHeading id="details-heading" tabindex="-1" class="text-xl font-semibold text-brand-900 outline-none">
       Your appointment
     </h2>
+
+    @if (notice(); as n) {
+      <div class="mt-4">
+        <bb-alert [variant]="n.variant" [heading]="n.heading">{{ n.text }}</bb-alert>
+      </div>
+    }
+
     <div class="mt-4">
       <bb-booking-summary [booking]="b" [showContact]="true" />
     </div>
@@ -19,6 +26,24 @@
         </bb-alert>
         <a routerLink="/book" class="btn-primary mt-4">Book an appointment</a>
       </div>
+    } @else if (mode() === 'view') {
+      <div class="no-print mt-6">
+        <div class="flex flex-wrap gap-3">
+          @if (b.canReschedule) {
+            <button type="button" class="btn-primary" (click)="open('reschedule')">Move appointment</button>
+          }
+          @if (b.canCancel) {
+            <button type="button" class="btn-secondary" (click)="open('cancel')">Cancel appointment</button>
+          }
+        </div>
+        @if (!b.canReschedule && !b.canCancel) {
+          <p class="text-muted">This appointment can no longer be changed online. Please contact your branch.</p>
+        } @else if (!b.canReschedule) {
+          <p class="mt-3 text-sm text-muted">
+            This appointment cannot be moved online. You can cancel it and make a new booking.
+          </p>
+        }
+      </div>
     }
 
     <div class="no-print mt-6 border-t border-line pt-4">
@@ -28,6 +53,26 @@
       <button type="button" class="btn-secondary mt-3" (click)="forget()">Look up a different booking</button>
     </div>
   </section>
+
+  @if (b.status === 'Confirmed') {
+    @switch (mode()) {
+      @case ('cancel') {
+        <section class="card mt-6">
+          <bb-cancel-booking [booking]="b" (done)="finished('cancelled')" (dismissed)="dismiss()" (stale)="refreshAfter($event)" />
+        </section>
+      }
+      @case ('reschedule') {
+        <section class="card mt-6">
+          <bb-reschedule-booking
+            [booking]="b"
+            (done)="finished('rescheduled')"
+            (dismissed)="dismiss()"
+            (stale)="refreshAfter($event)"
+          />
+        </section>
+      }
+    }
+  }
 
   <section class="card mt-6" aria-labelledby="messages-heading">
     <h2 id="messages-heading" class="text-xl font-semibold text-brand-900">Messages about this booking</h2>

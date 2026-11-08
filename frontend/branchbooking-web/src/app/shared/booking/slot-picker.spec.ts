@@ -166,4 +166,15 @@ describe('SlotPicker', () => {
 
     await expectNoA11yViolations(root);
   });
+
+    it('loads the day again when the refresh input changes', async () => {
+    const fixture = create({ date: '2026-11-03' });
+    http.expectOne((r) => r.url === url).flush(anAvailability);
+    await settle(fixture);
+
+    fixture.componentRef.setInput('refresh', 1);
+    fixture.detectChanges();
+
+    http.expectOne((r) => r.url === url).flush(anAvailability);
+  });
 });

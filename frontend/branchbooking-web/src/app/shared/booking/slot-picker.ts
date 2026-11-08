@@ -43,6 +43,8 @@ export class SlotPicker {
   readonly currentStartsAtUtc = input<string | null>(null);
   readonly chosen = output<Slot>();
 
+  readonly refresh = input(0);
+
   protected readonly today = computed(() => todayIn(this.timeZoneId()));
   private readonly weekStart = signal<string | null>(null);
   protected readonly visibleStart = computed(() => this.weekStart() ?? this.date() ?? this.today());
@@ -70,8 +72,10 @@ export class SlotPicker {
     effect(() => {
       const branchId = this.branchId();
       const date = this.date();
+      this.refresh();
       untracked(() => this.load(branchId, date));
     });
+
     inject(DestroyRef).onDestroy(() => this.request?.unsubscribe());
   }
 
