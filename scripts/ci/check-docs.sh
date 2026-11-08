@@ -47,8 +47,13 @@ while IFS= read -r file; do
   done < <({ grep -oE '\]\([^)]+\)' "$file" || true; } | sed -E 's/^\]\(//; s/\)$//; s/ .*$//')
 done < <(find . -name '*.md' -not -path '*/node_modules/*' -not -path './.git/*' -not -path './docs/implementation/*' | sort)
 
-# 4. No unfinished markers.
-if grep -nE 'TODO|FIXME' README.md CHANGELOG.md docs/*.md docs/engineering/*.md docs/api/*.md 2>/dev/null; then
+# 4. No unfinished markers. Only files that exist are passed to grep: given a missing file it exits 2 even when it
+#    found a match, which an `if` reads as "nothing found" and the check would pass when it should fail.
+documents=()
+for file in README.md CHANGELOG.md docs/*.md docs/engineering/*.md docs/api/*.md; do
+  [[ -f "$file" ]] && documents+=("$file")
+done
+if grep -nE 'TODO|FIXME' "${documents[@]}"; then
   bad "unfinished markers (TODO or FIXME) found in the documentation"
 fi
 
