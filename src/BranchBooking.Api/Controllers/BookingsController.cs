@@ -63,6 +63,7 @@ public sealed class BookingsController(
     }
 
     /// <summary>Cancels a booking and frees its place. Cancelling twice is harmless. The body is optional.</summary>
+    [EnableRateLimiting(RateLimitPolicies.Write)]
     [HttpPost("{reference}/cancel")]
     [ProducesResponseType<BookingDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]

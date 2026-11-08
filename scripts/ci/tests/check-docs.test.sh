@@ -22,6 +22,8 @@ See [the guide](docs/engineering/guide.md).
 EOF
   printf '# Guide\n' > "$d/docs/engineering/guide.md"
   printf '# Docs\n- [guide](engineering/guide.md)\n' > "$d/docs/README.md"
+  # Keep the Compose variable literal so the documentation checker can find it.
+  # shellcheck disable=SC2016
   printf 'services:\n  web:\n    ports:\n      - "${WEB_PORT:-8080}:8080"\n' > "$d/docker-compose.yml"
   printf 'POSTGRES_PASSWORD=<YOUR-PASSWORD>\n' > "$d/.env.example"
 }

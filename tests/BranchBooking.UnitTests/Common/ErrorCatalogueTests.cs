@@ -40,7 +40,7 @@ public partial class ErrorCatalogueTests
 
         foreach (var method in typeof(Errors).GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.ReturnType == typeof(Error)))
         {
-            var arguments = method.GetParameters().Select(p => p.ParameterType == typeof(int) ? (object)5 : "reason").ToArray();
+            var arguments = method.GetParameters().Select(p => p.ParameterType == typeof(int) ? (object)5 : "The customer details are invalid.").ToArray();
             errors.Add((Error)method.Invoke(null, arguments)!);
         }
 

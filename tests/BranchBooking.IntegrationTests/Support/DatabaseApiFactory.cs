@@ -23,6 +23,9 @@ public sealed class DatabaseApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("ConnectionStrings:BranchBooking", string.IsNullOrWhiteSpace(connection) ? Unused : connection);
         builder.UseSetting("Database:MigrateOnStartup", "false");
         builder.UseSetting("Database:SeedOnStartup", "false");
+        // Functional tests share a host and must not consume one another's rate-limit budget.
+        // The stubbed API factory tests rate limiting separately with explicit limits.
+        builder.UseSetting("RateLimiting:Enabled", "false");
 
         builder.ConfigureTestServices(services =>
         {

@@ -50,7 +50,8 @@ public sealed class SmtpOptions
         && Enum.IsDefined(Security)
         && HasCredentials == !string.IsNullOrEmpty(Password)
         && (!HasCredentials || Security != SmtpSecurity.None)
-        && MailboxAddress.TryParse(SenderEmail, out _)
+        && MailboxAddress.TryParse(SenderEmail, out var sender)
+        && sender.Address.Contains('@')
         && !string.IsNullOrWhiteSpace(SenderName)
         && TimeoutSeconds is >= 1 and <= 60;
 }

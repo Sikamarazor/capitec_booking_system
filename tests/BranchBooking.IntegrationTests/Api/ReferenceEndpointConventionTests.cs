@@ -41,6 +41,6 @@ public class ReferenceEndpointConventionTests
             }
         }
 
-        Assert.True(checkedActions >= 5, "Expected the get, cancel, reschedule and messages actions to be inspected.");
+        Assert.Equal(4, checkedActions); // Get, cancel, reschedule and messages.
     }
 }

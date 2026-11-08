@@ -14,6 +14,9 @@ public abstract class StubbedApiFactory(bool databaseUp) : WebApplicationFactory
     {
         // Satisfies startup validation; the stubbed probe means the data source is never opened.
         builder.UseSetting("ConnectionStrings:BranchBooking", "Host=localhost;Database=unused;Username=unused;Password=unused");
+        builder.UseSetting("Database:MigrateOnStartup", "false");
+        builder.UseSetting("Database:SeedOnStartup", "false");
+        builder.UseSetting("OpenApi:Enabled", "false");
 
         builder.ConfigureTestServices(services =>
         {

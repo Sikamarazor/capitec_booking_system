@@ -25,7 +25,7 @@ public class ModelConfigurationTests
     {
         var tables = BuildModel().GetEntityTypes().Select(e => e.GetTableName()).Order(StringComparer.Ordinal).ToArray();
 
-        Assert.Equal(new[] { "appointment_types", "bookings", "branch_opening_hours", "branches" }, tables);
+        Assert.Equal(new[] { "appointment_types", "bookings", "branch_opening_hours", "branches", "notification_messages" }, tables);
     }
 
     [Fact]

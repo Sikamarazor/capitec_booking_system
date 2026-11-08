@@ -48,7 +48,7 @@ public sealed class NotificationOptions
         && BatchSize is >= 1 and <= 500
         && PollSeconds is >= 1 and <= 3600
         && MaxAttempts is >= 1 and <= 20
-        && RetryBaseSeconds is >= 1 and <= 3600;
-        // && RetryMaxSeconds >= RetryBaseSeconds and <= 86_400
-        // && LeaseSeconds is >= 30 and <= 3600;
+        && RetryBaseSeconds is >= 1 and <= 3600
+        && RetryMaxSeconds >= RetryBaseSeconds && RetryMaxSeconds <= 86_400
+        && LeaseSeconds is >= 30 and <= 3600;
 }

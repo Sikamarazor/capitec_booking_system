@@ -25,12 +25,12 @@ public sealed class SmtpEmailSender(ISmtpTransport transport, IOptions<SmtpOptio
     {
         var settings = options.Value;
 
-        if (!MailboxAddress.TryParse(settings.SenderEmail, out var from))
+        if (!MailboxAddress.TryParse(settings.SenderEmail, out var from) || !from.Address.Contains('@'))
         {
             return SendResult.Permanent("sender_invalid");
         }
 
-        if (!MailboxAddress.TryParse(email.ToEmail, out var to))
+        if (!MailboxAddress.TryParse(email.ToEmail, out var to) || !to.Address.Contains('@'))
         {
             return SendResult.Permanent("invalid_recipient");
         }

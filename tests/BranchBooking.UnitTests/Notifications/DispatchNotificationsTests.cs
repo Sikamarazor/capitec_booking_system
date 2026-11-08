@@ -288,8 +288,8 @@ public class DispatchNotificationsTests
         var world = new TestWorld(notificationOptions: new NotificationOptions { BatchSize = 2 });
         var booking = world.AddConfirmedBooking(TestWorld.TuesdayEightAmUtc);
         var oldest = NotificationMessage.ForReminder(booking.Id, booking.StartsAtUtc, world.Now.AddMinutes(-3));
-        var middle = NotificationMessage.ForReminder(booking.Id, booking.StartsAtUtc.AddMinutes(1), world.Now.AddMinutes(-2));
-        var newest = NotificationMessage.ForReminder(booking.Id, booking.StartsAtUtc.AddMinutes(2), world.Now.AddMinutes(-1));
+        var middle = NotificationMessage.ForReminder(booking.Id, booking.StartsAtUtc, world.Now.AddMinutes(-2));
+        var newest = NotificationMessage.ForReminder(booking.Id, booking.StartsAtUtc, world.Now.AddMinutes(-1));
         world.Store.Messages.AddRange([newest, oldest, middle]);
 
         var summary = await world.DispatchNotifications().ExecuteAsync(ct);

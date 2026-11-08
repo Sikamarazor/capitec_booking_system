@@ -79,6 +79,7 @@ jobs:
           dotnet ef migrations has-pending-model-changes \
             --project src/BranchBooking.Infrastructure \
             --startup-project src/BranchBooking.Api \
+            --configuration Release \
             --no-build
 
       - name: Keep the test results
