@@ -45,7 +45,11 @@ Pick one path. Docker is optional.
 |---|---|---|
 | Needs | Docker with Compose v2 | .NET SDK 10, Node 22.12 or newer, PostgreSQL 16 |
 | Start | `docker compose up --build` | `scripts/run-manual.sh` (or `.ps1`) |
+| Test emails with Mailpit | `docker compose --profile mail up --build` with `NOTIFICATIONS_CHANNEL=Smtp` | `scripts/run-manual.sh --mailpit` or `./scripts/run-manual.ps1 -Mailpit` |
 | Open | http://localhost:8080 | http://localhost:4200 |
+| Mailpit inbox | http://localhost:8025 | http://localhost:8025 |
+
+For Mailpit installation, SMTP settings and an email test walkthrough, see [Mailpit without Docker](#mailpit-without-docker).
 
 ### Running with Docker (optional)
 
@@ -75,9 +79,20 @@ Open http://localhost:8080. Stop with `docker compose down`; add `-v` to also de
    - `cd frontend/branchbooking-web && npm ci && npm start`
 4. Open http://localhost:4200. Check it with `scripts/verify-foundation.sh http://localhost:5080 http://localhost:4200`.
 
+To receive test emails in a local inbox, install native Mailpit and use `scripts/run-manual.sh --mailpit` or `./scripts/run-manual.ps1 -Mailpit` instead of the plain launcher. The launcher starts the notification Worker as well as the API and frontend. Full setup and verification steps follow below.
+
 ### Mailpit without Docker
 
 Mailpit also runs as a native executable on Windows, macOS and Linux. Download the archive for your OS and CPU from the [official Mailpit releases](https://github.com/axllent/mailpit/releases), verify its SHA-256 against the digest shown beside that release asset, extract it, and put `mailpit` (`mailpit.exe` on Windows) on your `PATH`. Check with `mailpit version`. On macOS, `brew install mailpit` is another supported option.
+
+For example, on Windows, extract `mailpit.exe` to `C:\Tools\Mailpit`, then add it to the current PowerShell session:
+
+```powershell
+$env:Path += ';C:\Tools\Mailpit'
+mailpit version
+```
+
+On Linux, make the extracted binary executable (`chmod +x mailpit`) and put its directory on `PATH`, for example `export PATH="$HOME/tools/mailpit:$PATH"` when it is saved as `~/tools/mailpit/mailpit`. Run all launcher commands below from the repository root.
 
 With local PostgreSQL running, set the database connection string in the terminal that will launch the app. Both the API and notification Worker need it; their user-secret stores are separate.
 
@@ -126,6 +141,13 @@ mailpit --listen 127.0.0.1:8025 --smtp 127.0.0.1:1025
 ```
 
 The `.env` file and `SMTP_*` / `NOTIFICATIONS_CHANNEL` variables configure Docker Compose only. Native .NET processes read the `Notifications__...` variables above, application settings or user-secrets. Do not use `mailpit` as the SMTP hostname for a native Worker; that name belongs to the Docker network. This local, unencrypted configuration is for the Mailpit inbox; use TLS and authentication for a real SMTP provider.
+
+| Problem | What to check |
+|---|---|
+| `mailpit` is not found | Run `mailpit version` in the same terminal as the launcher; add the extracted executable's directory to that terminal's `PATH` |
+| Port 1025 or 8025 is already in use | If your Mailpit instance is already running, use the existing-instance instructions above and omit the Mailpit launcher option |
+| The inbox is empty | Check the Worker's console for startup or SMTP errors, confirm `Notifications__Channel=Smtp`, and allow at least 10 seconds after booking |
+| The Worker has no database connection | Export `ConnectionStrings__BranchBooking` before launching, or configure user-secrets separately for both API and Worker |
 
 ## Using the app
 
