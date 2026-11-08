@@ -129,7 +129,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: ShellCheck
-        run: shellcheck scripts/ci/*.sh scripts/ci/tests/*.sh scripts/verify-foundation.sh
+        run:  shellcheck scripts/ci/*.sh scripts/ci/tests/*.sh scripts/verify-foundation.sh scripts/e2e.sh
 
       - name: Script tests
         run: scripts/ci/tests/assert-tests.test.sh
