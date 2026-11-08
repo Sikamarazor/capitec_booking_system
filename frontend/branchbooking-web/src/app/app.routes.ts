@@ -21,5 +21,9 @@ export const routes: Routes = [
         title: 'Booking confirmation',
         loadComponent: () => import('./features/confirmation/confirmation').then((m) => m.Confirmation),
     },
-
+    {
+        path: 'manage',
+        title: 'Manage your booking',
+        loadComponent: () => import('./features/manage/manage-booking').then((m) => m.ManageBooking),
+    },
 ];

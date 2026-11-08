@@ -1,0 +1,35 @@
+<form class="space-y-6" novalidate (submit)="$event.preventDefault(); submit()">
+  <bb-error-summary [items]="summaryItems()" />
+
+  @if (error(); as problem) {
+    <bb-alert variant="error" [heading]="problem.title">
+      {{ problem.message }}
+      @if (problem.supportCode) {
+        <span class="mt-1 block text-sm">Support code: {{ problem.supportCode }}</span>
+      }
+    </bb-alert>
+  }
+
+  <bb-form-field
+    label="Booking reference"
+    controlId="reference"
+    hint="It looks like BK-7H2QX-M9RTD. You were given it when you booked and in your confirmation message."
+    [error]="fieldMessage()"
+  >
+    <input
+      id="reference"
+      class="field font-mono uppercase"
+      type="text"
+      [formControl]="reference"
+      autocomplete="off"
+      autocapitalize="characters"
+      spellcheck="false"
+      [attr.aria-invalid]="fieldMessage() ? 'true' : null"
+      [attr.aria-describedby]="describedBy('reference', true, fieldMessage() !== null)"
+    />
+  </bb-form-field>
+
+  <button type="submit" class="btn-primary" [disabled]="submitting()">
+    {{ submitting() ? 'Looking...' : 'Find my booking' }}
+  </button>
+</form>
