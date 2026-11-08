@@ -43,3 +43,7 @@ yarn-error.log*
 Thumbs.db
 
 docs/
+
+!scripts/ci/tests/fixtures/*.trx
+# Fixtures for the CI result checker are real TRX files on purpose.
+!scripts/ci/tests/fixtures/*.trx
