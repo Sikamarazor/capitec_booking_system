@@ -1,0 +1,61 @@
+@if (booking(); as b) {
+  <section class="card">
+    <h1 class="text-3xl font-bold text-brand-900">Your appointment is booked</h1>
+    <p class="mt-2 text-muted">Keep your booking reference. You need it to view, move or cancel this booking.</p>
+
+    <div class="mt-6 rounded-control border border-brand-600 bg-brand-50 p-4">
+      <h2 class="text-sm font-semibold text-brand-700">Your booking reference</h2>
+      <p class="mt-1 break-all font-mono text-3xl font-bold tracking-wide text-brand-900">{{ b.reference }}</p>
+    </div>
+
+    <div class="no-print mt-4 flex flex-wrap gap-3">
+      <button type="button" class="btn-secondary" (click)="copyReference()">Copy reference</button>
+      <button type="button" class="btn-secondary" (click)="addToCalendar()">Add to calendar</button>
+      <button type="button" class="btn-secondary" (click)="print()">Print this page</button>
+    </div>
+    <p role="status" class="no-print mt-2 min-h-6 text-sm text-muted">
+      @switch (copyState()) {
+        @case ('copied') {
+          Reference copied.
+        }
+        @case ('failed') {
+          We could not copy it. Select the reference above and copy it yourself.
+        }
+      }
+    </p>
+    <p class="no-print text-sm text-muted">
+      The calendar file includes your reference in the event description, so do not add it to a calendar you share.
+    </p>
+  </section>
+
+  <section class="card mt-6" aria-labelledby="summary-heading">
+    <h2 id="summary-heading" class="text-xl font-semibold text-brand-900">Appointment details</h2>
+    <div class="mt-4">
+      <bb-booking-summary [booking]="b" />
+    </div>
+  </section>
+
+  <section class="mt-6 space-y-4">
+    <bb-alert variant="info" heading="Confirmation message">
+      We have queued a confirmation message for {{ b.customerEmail }}. Where this system runs in demo mode nothing is
+      emailed; the message is shown on the Manage booking page instead.
+    </bb-alert>
+    <div class="no-print flex flex-wrap gap-3">
+      <a routerLink="/manage" class="btn-primary">Manage this booking</a>
+      <a routerLink="/book" class="btn-secondary">Book another appointment</a>
+    </div>
+  </section>
+} @else {
+  <section class="card">
+    <h1 class="text-3xl font-bold text-brand-900">No booking to show</h1>
+    <p class="mt-2 text-muted">
+      This page only shows a booking you have just made. To keep your reference private it is forgotten when you
+      reload the page or close the tab.
+    </p>
+    <p class="mt-2 text-muted">If you have your booking reference, you can look the booking up instead.</p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a routerLink="/manage" class="btn-primary">Manage a booking</a>
+      <a routerLink="/book" class="btn-secondary">Book an appointment</a>
+    </div>
+  </section>
+}

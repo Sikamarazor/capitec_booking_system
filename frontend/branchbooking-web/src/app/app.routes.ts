@@ -15,5 +15,11 @@ export const routes: Routes = [
         path: 'book',
         title: 'Book an appointment',
         loadComponent: () => import('./features/booking/booking-wizard').then((m) => m.BookingWizard),
-    }
+    },
+    {
+        path: 'confirmation',
+        title: 'Booking confirmation',
+        loadComponent: () => import('./features/confirmation/confirmation').then((m) => m.Confirmation),
+    },
+
 ];
