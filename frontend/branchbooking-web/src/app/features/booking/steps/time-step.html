@@ -1,0 +1,28 @@
+@if (draft.branch(); as branch) {
+  <form class="mt-4" novalidate (submit)="submit($event)">
+    <p class="mb-4 text-sm text-muted">Times are on the clock at {{ branch.name }}.</p>
+
+    <bb-slot-picker
+      [branchId]="branch.id"
+      [timeZoneId]="branch.timeZoneId"
+      [(date)]="draft.date"
+      [selectedStartsAtUtc]="draft.slot()?.startsAtUtc ?? null"
+      (chosen)="draft.slot.set($event); missing.set(false)"
+    />
+
+    @if (chosenText(); as text) {
+      <p class="mt-4 font-semibold text-brand-900" role="status">You chose {{ text }}.</p>
+    }
+    @if (missing()) {
+      <p class="mt-3 text-sm font-medium text-accent-600" role="alert">Choose a time to continue.</p>
+    }
+
+    <div class="mt-6 flex justify-between gap-3">
+      <button type="button" class="btn-secondary" (click)="back.emit()">Back</button>
+      <button type="submit" class="btn-primary">Continue</button>
+    </div>
+  </form>
+} @else {
+  <bb-alert variant="warning" heading="Choose a branch first">Go back and choose the branch you want.</bb-alert>
+  <button type="button" class="btn-secondary mt-4" (click)="back.emit()">Back</button>
+}

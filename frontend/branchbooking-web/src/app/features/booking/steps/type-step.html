@@ -1,0 +1,42 @@
+@switch (state()) {
+  @case ('loading') {
+    <bb-loading label="Loading appointment types" />
+  }
+  @case ('error') {
+    <div class="mt-4">
+      <bb-alert variant="error" [heading]="error()!.title">{{ error()!.message }}</bb-alert>
+      <button type="button" class="btn-secondary mt-4" (click)="load()">Try again</button>
+    </div>
+  }
+  @default {
+    <form class="mt-4" novalidate (submit)="submit($event)">
+      <fieldset class="space-y-3">
+        <legend class="sr-only">Appointment type</legend>
+        @for (type of types(); track type.id) {
+          <label class="choice">
+            <input
+              type="radio"
+              name="appointment-type"
+              class="mt-1 size-5 accent-brand-600"
+              [value]="type.id"
+              [checked]="isSelected(type)"
+              (change)="select(type)"
+            />
+            <span>
+              <span class="block font-semibold text-ink">{{ type.name }}</span>
+              <span class="mt-0.5 block text-sm text-muted">{{ type.description }}</span>
+            </span>
+          </label>
+        }
+      </fieldset>
+
+      @if (missing()) {
+        <p class="mt-3 text-sm font-medium text-accent-600" role="alert">Choose an appointment type to continue.</p>
+      }
+
+      <div class="mt-6 flex justify-end">
+        <button type="submit" class="btn-primary">Continue</button>
+      </div>
+    </form>
+  }
+}

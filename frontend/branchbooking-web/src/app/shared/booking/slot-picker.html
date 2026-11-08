@@ -1,0 +1,85 @@
+<div class="space-y-4">
+  <div class="flex items-center gap-2">
+    <button type="button" class="btn-secondary px-3" aria-label="Previous week" [disabled]="!canGoBack()" (click)="previousWeek()">
+      <span aria-hidden="true">&lsaquo;</span>
+    </button>
+
+    <ul class="grid flex-1 grid-cols-7 gap-1 sm:gap-2">
+      @for (day of days(); track day.value) {
+        <li>
+          <button
+            type="button"
+            class="flex min-h-16 w-full flex-col items-center rounded-control border border-line bg-card px-1 py-2 hover:border-brand-600 aria-pressed:border-brand-600 aria-pressed:bg-brand-600 aria-pressed:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            [attr.data-day]="day.value"
+            [attr.aria-pressed]="day.value === date()"
+            [attr.aria-label]="day.label"
+            [disabled]="day.past"
+            (click)="pick(day)"
+          >
+            <span class="text-xs opacity-80">{{ day.parts.weekday }}</span>
+            <span class="text-lg font-semibold">{{ day.parts.day }}</span>
+            <span class="text-xs opacity-80">{{ day.parts.month }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+
+    <button type="button" class="btn-secondary px-3" aria-label="Next week" (click)="nextWeek()">
+      <span aria-hidden="true">&rsaquo;</span>
+    </button>
+  </div>
+
+  <div aria-live="polite">
+    @switch (state()) {
+      @case ('idle') {
+        <p class="text-muted">Choose a day to see the times available.</p>
+      }
+      @case ('loading') {
+        <bb-loading label="Loading times" />
+      }
+      @case ('error') {
+        <bb-alert variant="error" [heading]="error()!.title">
+          {{ error()!.message }}
+          @if (error()!.supportCode) {
+            <span class="mt-1 block text-sm">Support code: {{ error()!.supportCode }}</span>
+          }
+        </bb-alert>
+        @if (error()!.retryable) {
+          <button type="button" class="btn-secondary mt-3" (click)="reload()">Try again</button>
+        }
+      }
+      @default {
+        @if (availability()!.slots.length === 0) {
+          <p class="text-muted">There are no appointments on this day. Try another day.</p>
+        } @else {
+          @if (!anyAvailable()) {
+            <p class="mb-3 text-muted">Every time on this day is taken. Try another day.</p>
+          }
+          <ul class="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            @for (slot of availability()!.slots; track slot.startsAtUtc) {
+              <li>
+                <button
+                  type="button"
+                  class="min-h-11 w-full rounded-control border border-line bg-card px-3 py-2 font-semibold hover:border-brand-600 aria-pressed:border-brand-600 aria-pressed:bg-brand-600 aria-pressed:text-white disabled:cursor-not-allowed disabled:bg-surface disabled:text-muted"
+                  [attr.data-slot]="slot.localStart"
+                  [attr.aria-pressed]="isSelected(slot)"
+                  [disabled]="!slot.isAvailable || isCurrent(slot)"
+                  (click)="chosen.emit(slot)"
+                >
+                  {{ slot.localStart }}
+                  @if (isCurrent(slot)) {
+                    <span class="block text-xs font-normal">Current time</span>
+                  } @else if (!slot.isAvailable) {
+                    <span class="block text-xs font-normal">Full</span>
+                  } @else if (slot.remaining === 1) {
+                    <span class="block text-xs font-normal">1 left</span>
+                  }
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      }
+    }
+  </div>
+</div>

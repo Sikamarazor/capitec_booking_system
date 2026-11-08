@@ -1,0 +1,76 @@
+<form class="mt-4 space-y-6" novalidate [formGroup]="form" (ngSubmit)="submit()">
+  <dl class="grid gap-x-6 gap-y-3 rounded-control bg-brand-50 p-4 sm:grid-cols-[auto_1fr]">
+    <dt class="text-sm font-semibold text-brand-900">Appointment</dt>
+    <dd>{{ draft.appointmentType()?.name }}</dd>
+    <dt class="text-sm font-semibold text-brand-900">Branch</dt>
+    <dd>{{ draft.branch()?.name }}, {{ draft.branch()?.addressLine }}, {{ draft.branch()?.city }}</dd>
+    <dt class="text-sm font-semibold text-brand-900">When</dt>
+    <dd>{{ whenText() }}</dd>
+    @if (draft.appointmentType()?.whatToBring; as bring) {
+      <dt class="text-sm font-semibold text-brand-900">What to bring</dt>
+      <dd>{{ bring }}</dd>
+    }
+  </dl>
+
+  <bb-error-summary [items]="summaryItems()" />
+
+  @if (error(); as problem) {
+    <bb-alert variant="error" [heading]="problem.title">
+      {{ problem.message }}
+      @if (problem.supportCode) {
+        <span class="mt-1 block text-sm">Support code: {{ problem.supportCode }}</span>
+      }
+    </bb-alert>
+  }
+
+  <bb-form-field label="Full name" controlId="fullName" [error]="message('fullName')">
+    <input
+      id="fullName"
+      class="field"
+      type="text"
+      formControlName="fullName"
+      autocomplete="name"
+      [attr.aria-invalid]="message('fullName') ? 'true' : null"
+      [attr.aria-describedby]="describe('fullName')"
+    />
+  </bb-form-field>
+
+  <bb-form-field label="Email address" controlId="email" hint="We send your confirmation here." [error]="message('email')">
+    <input
+      id="email"
+      class="field"
+      type="email"
+      inputmode="email"
+      formControlName="email"
+      autocomplete="email"
+      spellcheck="false"
+      [attr.aria-invalid]="message('email') ? 'true' : null"
+      [attr.aria-describedby]="describedBy('email', true, message('email') !== null)"
+    />
+  </bb-form-field>
+
+  <bb-form-field label="Phone number" controlId="phone" hint="For example 082 123 4567." [error]="message('phone')">
+    <input
+      id="phone"
+      class="field"
+      type="tel"
+      inputmode="tel"
+      formControlName="phone"
+      autocomplete="tel"
+      [attr.aria-invalid]="message('phone') ? 'true' : null"
+      [attr.aria-describedby]="describedBy('phone', true, message('phone') !== null)"
+    />
+  </bb-form-field>
+
+  <p class="text-sm text-muted">
+    We use these details only to manage your appointment and to send you messages about it. Your booking reference is
+    all anyone needs to view or change the booking, so keep it safe.
+  </p>
+
+  <div class="flex justify-between gap-3">
+    <button type="button" class="btn-secondary" (click)="back.emit()" [disabled]="submitting()">Back</button>
+    <button type="submit" class="btn-primary" [disabled]="submitting()">
+      {{ submitting() ? 'Confirming...' : 'Confirm appointment' }}
+    </button>
+  </div>
+</form>

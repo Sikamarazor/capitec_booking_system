@@ -63,3 +63,8 @@ export function formatSlotRange(startIso: string, endIso: string, timeZone: stri
 export function formatWhen(isoInstant: string, timeZone: string): string {
   return `${formatLongDate(isoInstant, timeZone)} at ${formatTime(isoInstant, timeZone)}`;
 }
+
+/** True when two ISO instants are the same moment, whatever offset notation each uses. */
+export function sameInstant(a: string | null | undefined, b: string | null | undefined): boolean {
+  return !!a && !!b && Date.parse(a) === Date.parse(b);
+}

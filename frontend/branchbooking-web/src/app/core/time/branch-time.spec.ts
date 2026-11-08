@@ -6,6 +6,7 @@ import {
   formatSlotRange,
   formatTime,
   formatWhen,
+  sameInstant,
   todayIn,
 } from './branch-time';
 
@@ -56,5 +57,11 @@ describe('branch-time', () => {
 
   it('dayParts labels a calendar date for the date strip', () => {
     expect(dayParts('2026-11-03')).toEqual({ weekday: 'Tue', day: '3', month: 'Nov' });
+  });
+
+  it('sameInstant compares moments, not text', () => {
+    expect(sameInstant('2026-11-03T06:00:00+00:00', '2026-11-03T08:00:00+02:00')).toBe(true);
+    expect(sameInstant('2026-11-03T06:00:00+00:00', '2026-11-03T06:30:00+00:00')).toBe(false);
+    expect(sameInstant(null, '2026-11-03T06:00:00+00:00')).toBe(false);
   });
 });
