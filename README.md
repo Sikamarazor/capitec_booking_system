@@ -262,17 +262,13 @@ e2e/                          Playwright browser tests
 docker/                       Dockerfiles and nginx configuration
 deploy/                       compose file and settings template for a release
 scripts/                      run, verify, e2e and CI scripts
-docs/                         guides (docs/README.md is the index); docs/implementation holds the planning documents
+docs/                         guides (docs/README.md is the index)
 .github/                      workflows, Dependabot, pull request template
 ```
 
 ## Documentation
 
 The index is `docs/README.md`: API guide, notifications, database migrations, local PostgreSQL, CI, end-to-end tests, releasing, toolchain, branching and commits.
-
-## Contributing
-
-Work is planned in epics and numbered work items (`docs/implementation/epics/README.md`). Read `AGENTS.md` first: one work item at a time, a branch per item (`docs/engineering/branching-and-commits.md`), tests with every change, no secrets in the repository.
 
 ## License
 
