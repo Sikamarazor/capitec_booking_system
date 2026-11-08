@@ -51,7 +51,7 @@ jobs:
             -e POSTGRES_DB=branchbooking_test \
             -p 127.0.0.1:5432:5432 \
             postgres:16-alpine
-          for attempt in $(seq 1 30); do
+          for _ in $(seq 1 30); do
             docker exec ci-postgres pg_isready -U branchbooking -d branchbooking_test && break
             sleep 2
           done
