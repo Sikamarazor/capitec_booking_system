@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { apiErrorInterceptor } from '../../core/api/api-error.interceptor';
 import { expectNoA11yViolations } from '../../testing/a11y';
-import { aBooking, aBranch, aType, anAvailability } from '../../testing/api-fixtures';
+import { aBranch, aType, anAvailability } from '../../testing/api-fixtures';
 import { buttonWithText, click, setValue, textOf } from '../../testing/dom';
 import { BookingDraftService } from './booking-draft.service';
 import { BookingWizard } from './booking-wizard';

@@ -8,5 +8,8 @@ export async function expectNoA11yViolations(element: HTMLElement): Promise<void
   const summary = results.violations.map(
     (violation) => `${violation.id}: ${violation.help} [${violation.nodes.map((n) => n.target.join(' ')).join(', ')}]`,
   );
-  // expect(summary).toEqual([]);
+
+  if (summary.length > 0) {
+    throw new Error(`Accessibility violations found:\n${summary.join('\n')}`);
+  }
 }
