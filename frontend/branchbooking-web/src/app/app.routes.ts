@@ -7,11 +7,6 @@ export const routes: Routes = [
         loadComponent: () => import('./features/home/home').then((m) => m.Home),
     },
     {
-        path: '**',
-        title: 'Page not found',
-        loadComponent: () => import('./features/not-found/not-found').then((m) => m.NotFound),
-    },
-    {
         path: 'book',
         title: 'Book an appointment',
         loadComponent: () => import('./features/booking/booking-wizard').then((m) => m.BookingWizard),
@@ -25,5 +20,10 @@ export const routes: Routes = [
         path: 'manage',
         title: 'Manage your booking',
         loadComponent: () => import('./features/manage/manage-booking').then((m) => m.ManageBooking),
+    },
+    {
+        path: '**',
+        title: 'Page not found',
+        loadComponent: () => import('./features/not-found/not-found').then((m) => m.NotFound),
     },
 ];

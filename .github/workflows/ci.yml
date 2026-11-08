@@ -1,0 +1,138 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, "dev"]
+  workflow_call:
+
+# A new push to a pull request cancels the older run; main and tags are never cancelled.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('global.json', 'Directory.Build.props', '**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore BranchBooking.slnx
+
+      - name: Build (warnings are errors)
+        run: dotnet build BranchBooking.slnx -c Release --no-restore
+
+      - name: Audit NuGet packages
+        run: scripts/ci/audit-dotnet.sh
+
+      - name: Start PostgreSQL with a throwaway password
+        run: |
+          password="$(openssl rand -hex 16)"
+          echo "::add-mask::$password"
+          docker run -d --name ci-postgres \
+            -e POSTGRES_USER=branchbooking \
+            -e POSTGRES_PASSWORD="$password" \
+            -e POSTGRES_DB=branchbooking_test \
+            -p 127.0.0.1:5432:5432 \
+            postgres:16-alpine
+          for attempt in $(seq 1 30); do
+            docker exec ci-postgres pg_isready -U branchbooking -d branchbooking_test && break
+            sleep 2
+          done
+          docker exec ci-postgres pg_isready -U branchbooking -d branchbooking_test
+          echo "BRANCHBOOKING_TEST_CONNECTION=Host=127.0.0.1;Port=5432;Database=branchbooking_test;Username=branchbooking;Password=$password" >> "$GITHUB_ENV"
+
+      - name: Unit tests
+        run: >
+          dotnet test tests/BranchBooking.UnitTests -c Release --no-build
+          --logger "trx;LogFileName=unit.trx" --results-directory TestResults
+
+      - name: Integration tests (real PostgreSQL)
+        run: >
+          dotnet test tests/BranchBooking.IntegrationTests -c Release --no-build
+          --logger "trx;LogFileName=integration.trx" --results-directory TestResults
+
+      - name: Fail on skipped or missing tests
+        run: scripts/ci/assert-tests.sh TestResults/unit.trx TestResults/integration.trx
+
+      - name: No unmigrated model changes
+        env:
+          ConnectionStrings__BranchBooking: ${{ env.BRANCHBOOKING_TEST_CONNECTION }}
+        run: |
+          dotnet tool restore
+          dotnet ef migrations has-pending-model-changes \
+            --project src/BranchBooking.Infrastructure \
+            --startup-project src/BranchBooking.Api \
+            --no-build
+
+      - name: Keep the test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: TestResults
+          retention-days: 7
+          if-no-files-found: ignore
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend/branchbooking-web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/branchbooking-web/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/branchbooking-web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test:ci
+
+      - name: Production build
+        run: npm run build
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+  scripts:
+    name: Scripts and workflows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck
+        run: shellcheck scripts/ci/*.sh scripts/ci/tests/*.sh scripts/verify-foundation.sh
+
+      - name: Script tests
+        run: scripts/ci/tests/assert-tests.test.sh
+
+      - name: Lint workflow files
+        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.7 -color
