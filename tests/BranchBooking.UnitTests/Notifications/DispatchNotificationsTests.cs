@@ -254,7 +254,8 @@ public class DispatchNotificationsTests
         var world = new TestWorld();
         var first = world.AddConfirmedBooking(TestWorld.TuesdayEightAmUtc, email: "a@example.com");
         var second = world.AddConfirmedBooking(TestWorld.TuesdayEightAmUtc.AddMinutes(30), email: "b@example.com");
-        world.AddPendingMessage(first);
+        // Claim order is due time, then ID; equal timestamps do not guarantee insertion order.
+        world.Store.Messages.Add(NotificationMessage.ForConfirmation(first, world.Now.AddMinutes(-1)));
         var untouched = world.AddPendingMessage(second);
         world.Store.SaveFailures.Enqueue(new ConcurrencyConflictException());
 
