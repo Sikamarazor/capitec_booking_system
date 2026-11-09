@@ -1,0 +1,17 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/.angular/
+.git/
+.github/
+.vs/
+.idea/
+.vscode/
+**/*.user
+.env
+.env.*
+!.env.example
+docs/
+tests/
+scripts/

@@ -1,0 +1,49 @@
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <p class="text-sm text-muted">Oldest first. A message can take about a minute to be sent.</p>
+  <button type="button" class="btn-secondary no-print" [disabled]="state() === 'loading'" (click)="reload()">
+    Refresh
+  </button>
+</div>
+
+@if (error(); as problem) {
+  <div class="mt-4">
+    <bb-alert variant="error" [heading]="problem.title">
+      {{ problem.message }}
+      @if (problem.supportCode) {
+        <span class="mt-1 block text-sm">Support code: {{ problem.supportCode }}</span>
+      }
+    </bb-alert>
+  </div>
+}
+
+@if (state() === 'loading' && messages().length === 0) {
+  <bb-loading label="Loading messages" />
+} @else if (state() === 'loaded' && messages().length === 0) {
+  <p class="mt-4">No messages yet.</p>
+}
+
+@if (messages().length > 0) {
+  <ul class="mt-4 space-y-4">
+    @for (message of messages(); track $index) {
+      <li class="rounded-control border border-line p-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <p class="font-semibold text-brand-900">{{ kindLabel(message) }}</p>
+          <bb-status-chip [tone]="status(message).tone">{{ status(message).label }}</bb-status-chip>
+        </div>
+        <p class="mt-1 text-sm text-muted">{{ whenText(message) }}</p>
+        @if (isDemo(message)) {
+          <p class="mt-2 text-sm font-semibold text-brand-700">Demo message. Nothing was emailed.</p>
+        }
+        @if (message.body) {
+          <details class="mt-3">
+            <summary class="min-h-6 cursor-pointer font-semibold text-brand-700">Read the message</summary>
+            @if (message.subject) {
+              <p class="mt-2 font-semibold">{{ message.subject }}</p>
+            }
+            <pre class="mt-2 whitespace-pre-wrap font-sans text-base">{{ message.body }}</pre>
+          </details>
+        }
+      </li>
+    }
+  </ul>
+}

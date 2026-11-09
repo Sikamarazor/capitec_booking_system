@@ -1,0 +1,33 @@
+<section class="card">
+  <h1 class="text-3xl font-bold text-brand-900">Book an appointment</h1>
+  <div class="mt-4">
+    <bb-stepper [steps]="labels" [current]="draft.step()" />
+  </div>
+</section>
+
+<section class="card mt-6" aria-labelledby="step-heading">
+  <h2 #stepHeading id="step-heading" tabindex="-1" class="text-xl font-semibold text-brand-900 outline-none">
+    {{ titles[draft.step()] }}
+  </h2>
+
+  @if (notice(); as problem) {
+    <div class="mt-4">
+      <bb-alert variant="warning" [heading]="problem.title">{{ problem.message }}</bb-alert>
+    </div>
+  }
+
+  @switch (draft.step()) {
+    @case (0) {
+      <bb-type-step (done)="next()" />
+    }
+    @case (1) {
+      <bb-branch-step (done)="next()" (back)="back()" />
+    }
+    @case (2) {
+      <bb-time-step (done)="next()" (back)="back()" />
+    }
+    @default {
+      <bb-details-step (back)="back()" (lost)="sentBack($event)" />
+    }
+  }
+</section>

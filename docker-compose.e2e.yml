@@ -1,0 +1,12 @@
+# Test-only overrides for the end-to-end run. Never use this file for anything else.
+services:
+  api:
+    environment:
+      # The journey makes several writes a minute from one address.
+      RateLimiting__WritePermitsPerMinute: "1000"
+      RateLimiting__LookupPermitsPerMinute: "1000"
+  worker:
+    environment:
+      Notifications__Channel: Simulated
+      Notifications__PollSeconds: "2"
+      Notifications__Reminders__Enabled: "false"

@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand blue */
+  --color-brand-50: #e8f3fb;
+  --color-brand-100: #cfe6f7;
+  --color-brand-500: #1a8fd9;
+  --color-brand-600: #0a73bf;
+  --color-brand-700: #0a5c99;
+  --color-brand-900: #06375c;
+
+  /* Accent red */
+  --color-accent-500: #e2342d;
+  --color-accent-600: #c42a24;
+
+  /* Neutrals */
+  --color-ink: #0f1f2e;
+  --color-muted: #5b6b7a;
+  --color-surface: #f4f7fa;
+  --color-card: #ffffff;
+  --color-line: #d9e2ea;
+
+  /* Status */
+  --color-success: #176b30;
+  --color-warning: #b26a00;
+
+  /* Typography: system stack until the brand font is confirmed */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Shape and elevation */
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+  --shadow-card: 0 1px 2px rgb(15 31 46 / 0.06), 0 4px 16px rgb(15 31 46 / 0.06);
+
+  
+
+}
+
+h1:focus {
+    outline: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+/* --- Base Styles --- */
+/* In Tailwind v4, use regular CSS selectors to apply styling to raw elements */
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  @apply bg-surface text-ink antialiased;
+}
+
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-brand-600;
+}
+
+/* --- Custom Components & Utilities --- */
+/* In Tailwind v4, define custom complex styles using the @utility directive */
+
+@utility btn {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-control px-5 py-3 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply btn bg-brand-600 text-white hover:bg-brand-700;
+}
+
+@utility btn-secondary {
+  @apply btn border border-brand-600 bg-card text-brand-700 hover:bg-brand-50;
+}
+
+@utility btn-danger {
+  @apply btn bg-accent-600 text-white hover:bg-accent-500;
+}
+
+@utility btn-link {
+  @apply inline-flex min-h-11 items-center font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-900;
+}
+
+@utility card {
+  @apply rounded-card bg-card p-5 shadow-card sm:p-6;
+}
+
+@utility field {
+  @apply min-h-11 w-full rounded-control border border-line bg-card px-4 py-3 text-base text-ink placeholder:text-muted focus:border-brand-600 aria-[invalid=true]:border-accent-600;
+}
+
+@utility choice {
+  @apply flex min-h-11 cursor-pointer items-start gap-3 rounded-card border border-line bg-card p-4 transition-colors hover:border-brand-600 has-checked:border-brand-600 has-checked:bg-brand-50 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-brand-600;
+}
+
+@utility chip {
+  @apply inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold;
+}
+
+@utility chip-success {
+  @apply chip bg-success/10 text-success;
+}
+
+@utility chip-danger {
+  @apply chip bg-accent-600/10 text-accent-600;
+}
+
+@utility chip-warning {
+  @apply chip bg-warning/10 text-warning;
+}
+
+@utility chip-neutral {
+  @apply chip bg-brand-50 text-brand-900;
+}
+
+@utility skip-link {
+  @apply absolute top-2 left-4 z-50 -translate-y-20 rounded-control bg-card px-4 py-2 font-semibold text-brand-700 shadow-card focus:translate-y-0;
+}
+
+@utility no-print {
+  @media print {
+    display: none !important;
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+}

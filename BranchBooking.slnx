@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BranchBooking.Api/BranchBooking.Api.csproj" />
+    <Project Path="src/BranchBooking.Application/BranchBooking.Application.csproj" />
+    <Project Path="src/BranchBooking.Domain/BranchBooking.Domain.csproj" />
+    <Project Path="src/BranchBooking.Infrastructure/BranchBooking.Infrastructure.csproj" />
+    <Project Path="src/BranchBooking.Worker/BranchBooking.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BranchBooking.IntegrationTests/BranchBooking.IntegrationTests.csproj" />
+    <Project Path="tests/BranchBooking.UnitTests/BranchBooking.UnitTests.csproj" />
+  </Folder>
+</Solution>

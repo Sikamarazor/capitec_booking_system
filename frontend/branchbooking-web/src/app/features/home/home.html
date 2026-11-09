@@ -1,0 +1,42 @@
+<section class="card">
+  <h1 class="text-3xl font-bold text-brand-900">Book a branch appointment</h1>
+  <p class="mt-2 max-w-prose text-muted">
+    Choose what you need, pick a branch and a time that suits you, and get your booking reference straight away.
+  </p>
+  <div class="mt-6 flex flex-wrap gap-3">
+    <a routerLink="/book" class="btn-primary">Book an appointment</a>
+    <a routerLink="/manage" class="btn-secondary">Manage a booking</a>
+  </div>
+</section>
+
+@if (types().length > 0) {
+  <section class="mt-8" aria-labelledby="types-heading">
+    <h2 id="types-heading" class="text-xl font-semibold text-brand-900">What you can book</h2>
+    <ul class="mt-4 grid gap-4 sm:grid-cols-3">
+      @for (type of types(); track type.id) {
+        <li class="card">
+          <h3 class="font-semibold text-ink">{{ type.name }}</h3>
+          <p class="mt-1 text-sm text-muted">{{ type.description }}</p>
+        </li>
+      }
+    </ul>
+  </section>
+}
+
+<section class="mt-8" aria-labelledby="how-heading">
+  <h2 id="how-heading" class="text-xl font-semibold text-brand-900">How it works</h2>
+  <ol class="mt-4 grid gap-4 sm:grid-cols-3">
+    <li class="card">
+      <p class="font-semibold text-brand-700">1. Choose</p>
+      <p class="mt-1 text-sm text-muted">Pick the appointment type and the branch that suits you.</p>
+    </li>
+    <li class="card">
+      <p class="font-semibold text-brand-700">2. Pick a time</p>
+      <p class="mt-1 text-sm text-muted">See which times are free and take one.</p>
+    </li>
+    <li class="card">
+      <p class="font-semibold text-brand-700">3. Keep your reference</p>
+      <p class="mt-1 text-sm text-muted">You need it to view, move or cancel your booking.</p>
+    </li>
+  </ol>
+</section>
