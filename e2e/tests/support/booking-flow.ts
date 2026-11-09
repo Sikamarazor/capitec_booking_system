@@ -20,6 +20,7 @@ export function aCustomer(): Customer {
  * the two-hour change cutoff, even when the earliest bookable slot is only an hour away.
  */
 export async function chooseFirstAvailableSlot(page: Page): Promise<string> {
+  await expect(page.locator('button[data-day]').first()).toBeVisible();
   const branchToday = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Africa/Johannesburg', year: 'numeric', month: '2-digit', day: '2-digit',
   }).format(new Date());
@@ -61,10 +62,10 @@ export async function chooseTypeBranchAndTime(page: Page): Promise<string> {
   await page.goto('/book');
   await expect(page.getByRole('heading', { level: 1, name: 'Book an appointment' })).toBeVisible();
 
-  await page.getByRole('radio').first().check();
+  await page.getByRole('group', { name: 'Appointment type', exact: true }).getByRole('radio').first().check();
   await page.getByRole('button', { name: 'Continue' }).click();
 
-  await page.getByRole('radio').first().check();
+  await page.getByRole('group', { name: 'Branch', exact: true }).getByRole('radio').first().check();
   await page.getByRole('button', { name: 'Continue' }).click();
 
   const label = await chooseFirstAvailableSlot(page);
