@@ -9,6 +9,8 @@ on:
       - deploy/**
       - docker-compose*.yml
       - .dockerignore
+      - .hadolint.yaml
+      - scripts/ci/check-image.sh
       - global.json
       - Directory.Build.props
       - .github/workflows/images.yml
