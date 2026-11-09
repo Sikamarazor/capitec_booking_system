@@ -7,17 +7,28 @@ web="$prefix-web"
 api="$prefix-api"
 reserve="$prefix-reserve"
 network="$prefix-network"
+probe_network="$prefix-probe"
 config="$(mktemp)"
 cleanup() {
   local status=$?
-  if [[ "$status" -ne 0 ]]; then docker logs --tail 40 "$web" 2>&1 || true; fi
+  if [[ "$status" -ne 0 ]]; then
+    echo "FAIL Docker DNS regression test (exit $status)" >&2
+    docker logs --tail 40 "$web" 2>&1 || true
+    docker logs --tail 40 "$api" 2>&1 || true
+  fi
   docker rm -f "$web" "$api" "$reserve" >/dev/null 2>&1 || true
   docker network rm "$network" >/dev/null 2>&1 || true
+  docker network rm "$probe_network" >/dev/null 2>&1 || true
   rm -f "$config"
 }
 trap cleanup EXIT
 
-docker network create "$network" >/dev/null
+# Docker requires an explicitly configured subnet for the static --ip reservation below.
+# Let its allocator select an unused range first rather than hardcoding one that may conflict.
+docker network create "$probe_network" >/dev/null
+subnet="$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' "$probe_network")"
+docker network rm "$probe_network" >/dev/null
+docker network create --subnet "$subnet" "$network" >/dev/null
 docker run -d --name "$web" --network "$network" "$image" >/dev/null
 web_get() { docker exec "$web" wget -Y off -T 3 -qO- "http://127.0.0.1:8080$1" 2>/dev/null; }
 wait_for() {
