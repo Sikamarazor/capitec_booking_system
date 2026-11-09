@@ -11,6 +11,7 @@ on:
       - .dockerignore
       - .hadolint.yaml
       - scripts/ci/check-image.sh
+      - scripts/ci/tests/nginx-dns.test.sh
       - global.json
       - Directory.Build.props
       - .github/workflows/images.yml
@@ -54,6 +55,10 @@ jobs:
 
       - name: Check what is inside
         run: scripts/ci/check-image.sh ${{ matrix.component }} branchbooking-${{ matrix.component }}:ci
+
+      - name: Web survives API DNS outages
+        if: matrix.component == 'web'
+        run: scripts/ci/tests/nginx-dns.test.sh branchbooking-web:ci
 
       - name: Report known vulnerabilities (does not block pull requests)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0

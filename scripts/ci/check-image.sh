@@ -46,8 +46,12 @@ case "$component" in
     else
       bad "index.html is missing or has no <bb-root>"
     fi
-    if in_image 'grep -q "proxy_pass http://api:8080" /etc/nginx/conf.d/default.conf'; then
-      pass "nginx proxies /api/ to the api service"
+    # Match nginx variable names literally rather than expanding them in either shell.
+    # shellcheck disable=SC2016
+    if in_image 'grep -Fq "resolver 127.0.0.11" /etc/nginx/conf.d/default.conf &&
+        grep -Fq "set \$api_upstream api:8080;" /etc/nginx/conf.d/default.conf &&
+        grep -Fq "proxy_pass http://\$api_upstream;" /etc/nginx/conf.d/default.conf'; then
+      pass "nginx proxies /api/ to the api service using Docker DNS"
     else
       bad "nginx proxy configuration is missing"
     fi
