@@ -4,7 +4,7 @@ A branch appointment booking system in the style of a retail bank: customers cho
 
 - **Frontend:** Angular with Tailwind CSS, mobile first, WCAG 2.2 AA target.
 - **Backend:** ASP.NET Core Web API on .NET 10, EF Core 10, PostgreSQL 16, plus a background Worker for notifications.
-- **Run it** with Docker (optional) or with local tools only.
+- **Run it** with Docker or with local tools only (optional).
 
 > **This is not Capitec's system and is not affiliated with Capitec.** It borrows the look and feel (colours, layout) that were asked for; it contains no Capitec logo, image or font. The sample branches are demo data, not real branches. Messages are simulated by default: nothing is emailed unless you configure an SMTP server, and the bundled Mailpit inbox only shows the emails on your machine.
 
@@ -39,19 +39,19 @@ Notifications are written to the database in the same transaction as the booking
 
 ## Quick start
 
-Pick one path. Docker is optional.
+Pick one path.
 
 | | Docker path | Manual path |
 |---|---|---|
 | Needs | Docker with Compose v2 | .NET SDK 10, Node 22.12 or newer, PostgreSQL 16 |
-| Start | `docker compose up --build` | `scripts/run-manual.sh` (or `.ps1`) |
-| Test emails with Mailpit | `docker compose --profile mail up --build` with `NOTIFICATIONS_CHANNEL=Smtp` | `scripts/run-manual.sh --mailpit` or `./scripts/run-manual.ps1 -Mailpit` |
+| Start, using emails with Mailpit | `docker compose --profile mail up --build` with `NOTIFICATIONS_CHANNEL=Smtp` | `scripts/run-manual.sh --mailpit` or `./scripts/run-manual.ps1 -Mailpit` |
+| Start (Without mail) | `docker compose up --build` | `scripts/run-manual.sh` (or `.ps1`) |
 | Open | http://localhost:8080 | http://localhost:4200 |
 | Mailpit inbox | http://localhost:8025 | http://localhost:8025 |
 
 For Mailpit installation, SMTP settings and an email test walkthrough, see [Mailpit without Docker](#mailpit-without-docker).
 
-### Running with Docker (optional)
+### Running with Docker
 
 ```bash
 cp .env.example .env            # then set your own POSTGRES_PASSWORD (avoid ; = and spaces)
