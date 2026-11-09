@@ -60,7 +60,7 @@ jobs:
             org.opencontainers.image.version=${{ env.VERSION }}
 
       - name: Build for checking
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/${{ matrix.component }}.Dockerfile
@@ -86,7 +86,7 @@ jobs:
 
       - name: Push with provenance and SBOM
         id: push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/${{ matrix.component }}.Dockerfile
