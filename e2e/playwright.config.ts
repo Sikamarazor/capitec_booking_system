@@ -10,7 +10,7 @@ export default defineConfig({
   retries: process.env['CI'] ? 1 : 0,
   timeout: 90_000,
   expect: { timeout: 10_000 },
-  reporter: process.env['CI'] ? [['list'], ['html', { open: 'never' }]] : [['list']],
+  reporter: process.env['CI'] ? [['list'], ['github'], ['html', { open: 'never' }]] : [['list']],
   use: {
     baseURL,
     // Deliberately not the branch's zone (Africa/Johannesburg): times must follow the branch, not the browser.
