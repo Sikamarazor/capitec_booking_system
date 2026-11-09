@@ -33,7 +33,7 @@ jobs:
       matrix:
         component: [api, worker, web]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Lint the Dockerfile
         uses: hadolint/hadolint-action@v3.1.0
