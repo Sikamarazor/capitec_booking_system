@@ -41,7 +41,7 @@ jobs:
           dockerfile: docker/${{ matrix.component }}.Dockerfile
           config: .hadolint.yaml
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       - name: Build
         uses: docker/build-push-action@v6
