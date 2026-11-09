@@ -112,6 +112,8 @@ $env:ConnectionStrings__BranchBooking = 'Host=localhost;Port=5432;Database=branc
 
 This starts native Mailpit, the API, the notification Worker and Angular. The Mailpit option configures the Worker for SMTP at `127.0.0.1:1025`, no TLS or authentication, with `noreply@branchbooking.example` as the sender and `http://localhost:4200` as the address in email links. Both Mailpit ports bind to loopback. Without the option, the launcher uses your existing notification settings (simulated by default). Stop the launcher with Ctrl+C to stop the processes it started.
 
+The PowerShell launcher checks API port 5080 and frontend port 4200 before starting (plus Mailpit ports 1025 and 8025 with `-Mailpit`). If Docker or another development session is using them, stop that session first. Each PowerShell run prints a log directory under `artifacts/manual-startup/`; API, Worker, Frontend and Mailpit each have separate `*.stdout.log` and `*.stderr.log` files. If a service exits, the launcher names it, shows its exit code and the final log lines, and preserves the files after cleanup. A previous generic error at line 73 only meant that one of these services had exited; the EF Core debug index messages are not the cause.
+
 To test delivery:
 
 1. Open the app at http://localhost:4200 and book a future appointment with a fake address such as `customer@example.com`.

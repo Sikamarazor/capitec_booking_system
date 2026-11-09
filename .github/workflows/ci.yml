@@ -122,6 +122,20 @@ jobs:
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
 
+  powershell:
+    name: PowerShell launcher (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test process startup and diagnostics
+        shell: pwsh
+        run: ./scripts/ci/tests/manual-processes.test.ps1
+
   scripts:
     name: Scripts and workflows
     runs-on: ubuntu-24.04

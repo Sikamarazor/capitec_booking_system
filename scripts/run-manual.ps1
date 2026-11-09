@@ -2,6 +2,7 @@
 param([switch]$Mailpit)
 $ErrorActionPreference = 'Stop'
 Set-Location (Join-Path $PSScriptRoot '..')
+. (Join-Path $PSScriptRoot 'manual-processes.ps1')
 
 foreach ($tool in @('dotnet', 'node', 'npm')) {
     if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) { throw "$tool not found. Install .NET SDK 10 and Node.js 22.12+." }
@@ -18,6 +19,11 @@ foreach ($project in @('src/BranchBooking.Api', 'src/BranchBooking.Worker')) {
     }
 }
 
+# Report port conflicts before installing dependencies or launching any child processes.
+$ports = @(@{ Name = 'API'; Port = 5080 }, @{ Name = 'Frontend'; Port = 4200 })
+if ($Mailpit) { $ports += @(@{ Name = 'Mailpit SMTP'; Port = 1025 }, @{ Name = 'Mailpit inbox'; Port = 8025 }) }
+Assert-ManualPortsAvailable -Ports $ports
+
 # Apply the SMTP preset only to child processes and restore this PowerShell session afterwards.
 $settings = @{
     Notifications__Channel = 'Smtp'
@@ -31,14 +37,12 @@ $settings = @{
     Notifications__Smtp__SenderName = 'BranchBooking'
 }
 $previous = @{}
-$processes = @()
+$services = @()
+$logDirectory = Join-Path (Get-Location) ('artifacts/manual-startup/' + (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))
+New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
+Write-Host "Startup logs: $logDirectory"
 $webDirectory = Join-Path (Get-Location) 'frontend/branchbooking-web'
-function Stop-LauncherProcess($process) {
-    if (-not $process.HasExited) {
-        if ($env:OS -eq 'Windows_NT') { & taskkill /PID $process.Id /T /F | Out-Null }
-        else { $process.Kill($true) }
-    }
-}
+
 try {
     if ($Mailpit) {
         foreach ($key in $settings.Keys) {
@@ -59,23 +63,21 @@ try {
 
     if ($Mailpit) {
         Write-Host 'Starting Mailpit: inbox http://localhost:8025, SMTP 127.0.0.1:1025 ...'
-        $processes += Start-Process mailpit -ArgumentList '--listen', '127.0.0.1:8025', '--smtp', '127.0.0.1:1025' -PassThru -NoNewWindow
+        $services += Start-ManualService -Name Mailpit -FilePath mailpit -ArgumentList @('--listen', '127.0.0.1:8025', '--smtp', '127.0.0.1:1025') -WorkingDirectory (Get-Location).Path -LogDirectory $logDirectory
     }
     Write-Host 'Starting API on http://localhost:5080 ...'
-    $processes += Start-Process dotnet -ArgumentList 'run', '--project', 'src/BranchBooking.Api', '--launch-profile', 'http', '--no-build' -PassThru -NoNewWindow
+    $services += Start-ManualService -Name API -FilePath dotnet -ArgumentList @('run', '--project', 'src/BranchBooking.Api', '--launch-profile', 'http', '--no-build') -WorkingDirectory (Get-Location).Path -LogDirectory $logDirectory
     Write-Host 'Starting notification Worker ...'
-    $processes += Start-Process dotnet -ArgumentList 'run', '--project', 'src/BranchBooking.Worker', '--no-build' -PassThru -NoNewWindow
+    $services += Start-ManualService -Name Worker -FilePath dotnet -ArgumentList @('run', '--project', 'src/BranchBooking.Worker', '--no-build') -WorkingDirectory (Get-Location).Path -LogDirectory $logDirectory
     Write-Host 'Starting web on http://localhost:4200 ...'
     $npmCommand = if ($env:OS -eq 'Windows_NT') { 'npm.cmd' } else { 'npm' }
-    $processes += Start-Process $npmCommand -ArgumentList 'start' -WorkingDirectory $webDirectory -PassThru -NoNewWindow
+    $services += Start-ManualService -Name Frontend -FilePath $npmCommand -ArgumentList @('start') -WorkingDirectory $webDirectory -LogDirectory $logDirectory
     while ($true) {
-        foreach ($process in $processes) {
-            if ($process.HasExited) { throw "A development service exited (code $($process.ExitCode))." }
-        }
+        Assert-ManualServicesRunning -Services $services
         Start-Sleep -Seconds 1
     }
 }
 finally {
-    foreach ($process in $processes) { Stop-LauncherProcess $process }
+    Stop-ManualServices -Services $services
     foreach ($key in $previous.Keys) { [Environment]::SetEnvironmentVariable($key, $previous[$key], 'Process') }
 }
