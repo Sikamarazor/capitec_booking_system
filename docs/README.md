@@ -9,5 +9,4 @@
 | [Continuous integration](engineering/ci.md) | the pipeline, running it locally, fixing a red check |
 | [End-to-end tests](engineering/e2e.md) | running and reading the browser tests |
 | [Releasing and deploying](engineering/releasing.md) | cutting a release, deploying, upgrading, rolling back |
-| [Toolchain](engineering/toolchain.md) | pinned versions and the sampled brand tokens |
-| [Branching and commits](engineering/branching-and-commits.md) | branch names, commit messages, pull requests, secrets |
+
