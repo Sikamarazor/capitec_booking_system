@@ -8,7 +8,7 @@ RUN npm ci
 COPY frontend/branchbooking-web/ ./
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged:1.27-alpine AS final
+FROM nginxinc/nginx-unprivileged:1.31-alpine AS final
 USER root
 RUN mkdir -p /etc/nginx/snippets && chmod 755 /etc/nginx/snippets
 COPY --chmod=644 docker/nginx/security-headers.conf /etc/nginx/snippets/security-headers.conf
