@@ -14,19 +14,27 @@ export function aCustomer(): Customer {
 }
 
 /**
- * On the slot picker, opens days until one has an open time and chooses the first one. Returns its label
+ * On the slot picker, opens future days until one has an open time and chooses the first one. Returns its label
  * (`HH:mm`, the branch's wall clock). Looks at up to three weeks. Waits on the availability response, not on timers.
+ * Seeded branches use Africa/Johannesburg. Skip today so the journey's move/cancel steps remain outside
+ * the two-hour change cutoff, even when the earliest bookable slot is only an hour away.
  */
 export async function chooseFirstAvailableSlot(page: Page): Promise<string> {
+  await expect(page.locator('button[data-day]').first()).toBeVisible();
+  const branchToday = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Johannesburg', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+
   for (let week = 0; week < 3; week++) {
     const days = page.locator('button[data-day]:not([disabled])');
     const count = await days.count();
 
     for (let index = 0; index < count; index++) {
       const day = days.nth(index);
+      const date = await day.getAttribute('data-day');
+      if (!date || date <= branchToday) continue;
 
       if ((await day.getAttribute('aria-pressed')) !== 'true') {
-        const date = await day.getAttribute('data-day');
         await Promise.all([
           page.waitForResponse((r) => r.url().includes('/availability') && r.url().includes(`date=${date}`)),
           day.click(),
@@ -54,10 +62,10 @@ export async function chooseTypeBranchAndTime(page: Page): Promise<string> {
   await page.goto('/book');
   await expect(page.getByRole('heading', { level: 1, name: 'Book an appointment' })).toBeVisible();
 
-  await page.getByRole('radio').first().check();
+  await page.getByRole('group', { name: 'Appointment type', exact: true }).getByRole('radio').first().check();
   await page.getByRole('button', { name: 'Continue' }).click();
 
-  await page.getByRole('radio').first().check();
+  await page.getByRole('group', { name: 'Branch', exact: true }).getByRole('radio').first().check();
   await page.getByRole('button', { name: 'Continue' }).click();
 
   const label = await chooseFirstAvailableSlot(page);
