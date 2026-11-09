@@ -55,7 +55,7 @@ For Mailpit installation, SMTP settings and an email test walkthrough, see [Mail
 
 ```bash
 cp .env.example .env            # then set your own POSTGRES_PASSWORD (avoid ; = and spaces)
-docker compose up --build -d
+docker compose --profile mail up --build
 docker compose ps               # db, api and web should be healthy; worker running
 scripts/verify-foundation.sh    # PowerShell: scripts/verify-foundation.ps1
 ```
