@@ -77,7 +77,7 @@ jobs:
         run: scripts/ci/check-image.sh ${{ matrix.component }} branchbooking-${{ matrix.component }}:release-check
 
       - name: Scan (fixed high and critical vulnerabilities block the release)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           image-ref: branchbooking-${{ matrix.component }}:release-check
           severity: HIGH,CRITICAL

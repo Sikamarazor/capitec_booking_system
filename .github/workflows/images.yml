@@ -56,7 +56,7 @@ jobs:
         run: scripts/ci/check-image.sh ${{ matrix.component }} branchbooking-${{ matrix.component }}:ci
 
       - name: Report known vulnerabilities (does not block pull requests)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           image-ref: branchbooking-${{ matrix.component }}:ci
           severity: HIGH,CRITICAL
