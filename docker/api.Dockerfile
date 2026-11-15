@@ -15,7 +15,7 @@ ARG VERSION=0.0.0-dev
 RUN dotnet publish src/BranchBooking.Api/BranchBooking.Api.csproj \
     -c Release -o /app/publish --no-restore /p:UseAppHost=false /p:Version=${VERSION}
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:11.0 AS final
 WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
